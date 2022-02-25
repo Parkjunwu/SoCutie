@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "app_crna",
+    "slug": "app_crna",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "app_crna"
+}

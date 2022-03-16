@@ -1,0 +1,1 @@
+apollo.config.js 에서 url 을 배포 주소로 바꿔야함. name 을 backend 폴더명(?) 으로 바꿔야함.

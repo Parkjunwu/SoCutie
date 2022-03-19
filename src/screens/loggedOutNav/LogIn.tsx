@@ -2,12 +2,12 @@ import { gql, useMutation, useReactiveVar } from "@apollo/client";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Alert, TextInput } from "react-native";
-import { isLoggedInVar, logUserIn } from "../apollo";
-import AuthButton from "../components/auth/AuthButton";
-import AuthLayout from "../components/auth/AuthLayout";
-import { Input } from "../components/auth/AuthShared";
-import { login, loginVariables } from "../__generated__/login";
+import { Alert, TextInput, useColorScheme } from "react-native";
+import { logUserIn } from "../../apollo";
+import AuthButton from "../../components/auth/AuthButton";
+import AuthLayout from "../../components/auth/AuthLayout";
+import { Input } from "../../components/auth/AuthShared";
+import { login, loginVariables } from "../../__generated__/login";
 
 const LOGIN_MUTATION = gql`
   mutation login($userName: String!,$password: String!){
@@ -86,6 +86,10 @@ const LogIn = ({navigation:{navigate},route:{params}}:Props) => {
       required:true,
     });
   },[register])
+
+const darkModeSubscription = useColorScheme();
+const placeholderTextColor = darkModeSubscription === "light" ? "grey" : "rgba(255,255,255,0.8)"
+
   return <AuthLayout>
     <Input
       placeholder="Username"
@@ -93,7 +97,7 @@ const LogIn = ({navigation:{navigate},route:{params}}:Props) => {
       autoCapitalize="none"
       onSubmitEditing={onEmailSubmit}
       blurOnSubmit={false} 
-      placeholderTextColor={"rgba(255,255,255,0.8)"}
+      placeholderTextColor={placeholderTextColor}
       onChangeText={(text)=>setValue("userName",text)}
       value={watch("userName")}
       // defaultValue={params?.userName}
@@ -104,7 +108,7 @@ const LogIn = ({navigation:{navigate},route:{params}}:Props) => {
       autoCapitalize="none"
       returnKeyType="done"
       ref={passwordRef}
-      placeholderTextColor={"rgba(255,255,255,0.8)"}
+      placeholderTextColor={placeholderTextColor}
       lastOne={true}
       onSubmitEditing={handleSubmit(onVaild)}
       onChangeText={(text)=>setValue("password",text)}

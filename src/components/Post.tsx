@@ -1,9 +1,9 @@
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { Image, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import { Image, TouchableOpacity, useColorScheme, useWindowDimensions } from "react-native";
 import styled from "styled-components/native";
-import { seeFeed_seeFeed, seeFeed_seeFeed_user } from "../__generated__/seeFeed";
+import { seeFeed_seeFeed_user } from "../__generated__/seeFeed";
 import { FeedStackProps } from "./type";
 import { Ionicons } from "@expo/vector-icons";
 import { ApolloCache, DefaultContext, gql, MutationUpdaterFunction, useMutation } from "@apollo/client";
@@ -27,7 +27,7 @@ const UserAvatar = styled.Image`
   margin-right: 10px;
 `;
 const Username = styled.Text`
-  color: white;
+  color: ${props=>props.theme.textColor};
   font-weight: 600;
 `;
 type ImageProp = {
@@ -49,62 +49,14 @@ const Caption = styled.View`
   flex-direction: row;
 `;
 const CaptionText = styled.Text`
-  color: white;
+  color: ${props=>props.theme.textColor};
   margin-left: 5px;
 `;
 const Likes = styled.Text`
-  color: white;
+  color: ${props=>props.theme.textColor};
   margin: 7px 0px;
   font-weight: 600;
 `;
-// const PhotoContainer = styled.View`
-//   position: relative;
-// `;
-// const PhotoBtn = styled.TouchableOpacity`
-//   position: absolute;
-//   z-index: 1;
-//   top: 47%;
-//   font-size: 70px;
-//   font-weight: 900;
-//   color: white;
-//   /* cursor: pointer;
-//   :hover {
-//     opacity: 1;
-//   } */
-//   opacity: 0.5;
-// `;
-// const NextPhotoBtn = styled(PhotoBtn)`
-//   right: 10px;
-// `;
-// const PrevPhotoBtn = styled(PhotoBtn)`
-//   left: 10px;
-// `;
-// const Photo = styled.Image`
-//   /* width: 100%;
-//   height: auto; */
-//   /* object-fit:cover; */
-//   /* border-bottom: 1px solid; */
-//   /* border-color: grey; */
-//   /* position: absolute; */
-// `;
-const PhotoIndexContainer = styled.View`
-  margin-top: 5px;
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: center;
-`;
-// const PhotoIndex = styled.TouchableOpacity<{isFocused:boolean}>`
-const PhotoIndex = styled.TouchableOpacity`
-  /* font-size: 10px; */
-  /* color: grey; */
-  /* cursor: pointer; */
-`;
-const PhotoIndexText = styled.Text`
-  font-size: 30px;
-  color: grey;
-  /* cursor: pointer; */
-`;
-
 const ExtraContainer = styled.View`
   padding: 10px;
 `;
@@ -166,18 +118,7 @@ const Post: React.FC<IPhotoProps> = ({id,user,caption,file,isLiked,likes}) => {
   }
   const goToProfile = () => navigation.navigate("Profile",{id:user.id,userName:user.userName})
 
-  // const [photoIndex,setPhotoIndex] = useState(0);
-  // const totalPhotoNumber = file.length;
-
-  // const photoIndexArray = [];
-  // for(let i=0;i<totalPhotoNumber;i++){
-  //   photoIndexArray.push(i)
-  // }
-  // console.log(photoIndexArray)
-  // const onPrevPhotoBtnClick = () => setPhotoIndex(prev=>prev-1);
-  // const onNextPhotoBtnClick = () => setPhotoIndex(prev=>prev+1);
-  // const onPhotoIndexClick = (index:number) => setPhotoIndex(index);
-
+  const darkModeSubscription = useColorScheme();
   return <Container>
     <Header onPress={goToProfile}>
       {user.avatar && <UserAvatar source={{uri:user.avatar}} resizeMode="cover"/>}
@@ -191,19 +132,15 @@ const Post: React.FC<IPhotoProps> = ({id,user,caption,file,isLiked,likes}) => {
     <ExtraContainer>
       <Actions>
         <Action onPress={updatetogglePostLikes}>
-          <Ionicons name={isLiked?"heart":"heart-outline"} color={isLiked?"tomato":"white"} size={22}/>
+          <Ionicons name={isLiked?"heart":"heart-outline"} color={isLiked?"tomato":darkModeSubscription === "light" ? "black" : "white"} size={22}/>
         </Action>
         <Action onPress={() => navigation.navigate("Comments",{postId:id})}>
-          <Ionicons name="chatbubble-outline" color="white" size={20}/>
+          <Ionicons name="chatbubble-outline" color={darkModeSubscription === "light" ? "black" : "white"} size={20}/>
         </Action>
       </Actions>
-
-
-      <TouchableOpacity onPress={() => navigation.navigate("Likes",{postId:id})}>
+      <TouchableOpacity onPress={() => navigation.navigate("PostLikes",{postId:id})}>
         <Likes>{likes === 1 ? "1 like" : `${likes} likes`}</Likes>
       </TouchableOpacity>
-
-
       <Caption>
         <TouchableOpacity onPress={goToProfile}><Username>{user.userName}{file && "a"}</Username></TouchableOpacity>
         <CaptionText>{caption}</CaptionText>

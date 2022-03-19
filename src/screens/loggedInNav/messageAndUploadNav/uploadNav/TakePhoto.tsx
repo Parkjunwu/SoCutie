@@ -1,6 +1,6 @@
 import { Camera } from "expo-camera";
 import React, { useEffect, useRef, useState } from "react";
-import { Alert, Image, StatusBar, Text, TouchableOpacity } from "react-native";
+import { Alert, Image, StatusBar, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 import {Ionicons} from "@expo/vector-icons"
 import Slider from '@react-native-community/slider';
@@ -116,8 +116,6 @@ const TakePhoto = ({navigation}:Props) => {
         skipProcessing:true,
       });
       setTakenPhoto(uri);
-      // const assets = await MediaLibrary.createAssetAsync(uri);
-      // console.log(assets)
     }
   }
 

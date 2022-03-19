@@ -1,14 +1,13 @@
 import React from "react";
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import styled from "styled-components/native";
-import { colors } from "../color";
 import { TouchableOpacity } from "react-native";
-import AuthLayout from "../components/auth/AuthLayout";
-import AuthButton from "../components/auth/AuthButton";
-// import logo from "../../assets/logo.png"
+import { colors } from "../../color";
+import AuthLayout from "../../components/auth/AuthLayout";
+import AuthButton from "../../components/auth/AuthButton";
 
 const LoginLink = styled.Text`
-  color: ${colors.blue};
+  color: ${colors.brown};
   font-weight: 600;
   margin-top: 10px;
 `;

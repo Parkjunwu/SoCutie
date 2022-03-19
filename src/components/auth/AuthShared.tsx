@@ -5,10 +5,10 @@ interface IInputProps {
 }
 
 export const Input = styled.TextInput<IInputProps>`
-  background-color: rgba(255,255,255,0.15);
+  background-color: ${props=>props.theme.textInputBackgroundColor};
   padding: 15px 8px;
   border-radius: 20px;
-  color: white;
+  color: ${props=>props.theme.textColor};
   margin-bottom: ${props=>props.lastOne ? 17 : 8}px;
   width: 100%;
 `;

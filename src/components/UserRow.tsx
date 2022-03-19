@@ -3,7 +3,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React from "react";
 import styled from "styled-components/native";
 import { colors } from "../color";
-import { seePhotoLikes_seePhotoLikes } from "../__generated__/seePhotoLikes";
+import { seePostLikes_seePostLikes } from "../__generated__/seePostLikes";
 import { FeedStackProps } from "./type";
 
 const Column = styled.TouchableOpacity`
@@ -17,7 +17,7 @@ const Avatar = styled.Image`
   margin-right: 10px;
 `;
 const Username = styled.Text`
-  color: white;
+  color: ${props=>props.theme.textColor};
   font-weight: 600;
   font-size: 17px;
 `;
@@ -38,8 +38,8 @@ const FollowOrUnFollowText = styled.Text`
   font-weight: 600;
 `;
 
-const UserRow: React.FC<seePhotoLikes_seePhotoLikes> = ({avatar,userName,isFollowing,isMe,id}) => {
-  const navigation = useNavigation<NativeStackNavigationProp<FeedStackProps,"Likes">>();
+const UserRow: React.FC<seePostLikes_seePostLikes> = ({avatar,userName,isFollowing,isMe,id}) => {
+  const navigation = useNavigation<NativeStackNavigationProp<FeedStackProps,"PostLikes">>();
   return <Wrapper>
     <Column onPress={()=>navigation.navigate("Profile",{id,userName})}>
       {/* {avatar && <Avatar source={{uri:avatar}}/>} */}

@@ -4,18 +4,20 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Font from "expo-font";
 import { Asset } from "expo-asset";
 import { NavigationContainer } from "@react-navigation/native";
-import LoggedOutNav from "./navigator/LoggedOutNav";
-import { AppearanceProvider, useColorScheme } from 'react-native-appearance';
 import { ApolloProvider, useReactiveVar } from "@apollo/client";
 import client, { isLoggedInVar, tokenVar, cache } from "./apollo";
-import LoggedInNav from "./navigator/LoggedInNav";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AsyncStorageWrapper, CachePersistor, persistCache } from "apollo3-cache-persist";
 import 'react-native-gesture-handler';
+import LoggedInNav from "./screens/LoggedInNav";
+import LoggedOutNav from "./screens/LoggedOutNav";
+import { ThemeProvider } from "styled-components/native";
+import { darkMode, lightMode } from "./styles";
+import { useColorScheme } from "react-native";
 
 export default function Apps() {
   const isLoggedIn = useReactiveVar(isLoggedInVar);
-  const darkModeSubscription = useColorScheme()
+  const darkModeSubscription = useColorScheme();
   const [isAppNotReady, setIsAppNotReady] = useState(true);
   const onFinish = () => setIsAppNotReady(false);
 
@@ -61,13 +63,13 @@ export default function Apps() {
   }
   console.log(darkModeSubscription)
   return (
-    <ApolloProvider client={client}>
-      <AppearanceProvider>
+    <ThemeProvider theme={darkModeSubscription === "light" ?lightMode : darkMode}>
+      <ApolloProvider client={client}>
         <NavigationContainer>
           {/* 로그인 안하면 못써 */}
           {isLoggedIn?<LoggedInNav/>:<LoggedOutNav/>}
         </NavigationContainer>
-      </AppearanceProvider>
-    </ApolloProvider>
+      </ApolloProvider>
+    </ThemeProvider>
   )
 }

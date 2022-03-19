@@ -2,16 +2,16 @@ import { gql, useMutation } from "@apollo/client";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Alert, TextInput, TouchableOpacity } from "react-native";
+import { Alert, TextInput, TouchableOpacity, useColorScheme } from "react-native";
 import styled from "styled-components/native";
-import { colors } from "../color";
-import AuthButton from "../components/auth/AuthButton";
-import AuthLayout from "../components/auth/AuthLayout";
-import { Input } from "../components/auth/AuthShared";
-import { createAccount, createAccountVariables } from "../__generated__/createAccount";
+import { colors } from "../../color";
+import AuthButton from "../../components/auth/AuthButton";
+import AuthLayout from "../../components/auth/AuthLayout";
+import { Input } from "../../components/auth/AuthShared";
+import { createAccount, createAccountVariables } from "../../__generated__/createAccount";
 
 const LoginLink = styled.Text`
-  color: ${colors.blue};
+  color: ${colors.brown};
   font-weight: 600;
   margin-top: 10px;
 `;
@@ -116,6 +116,10 @@ const CreateAccount = ({navigation:{navigate}}:Props) => {
       required:true,
     });
   },[register])
+
+  const darkModeSubscription = useColorScheme();
+  const placeholderTextColor = darkModeSubscription === "light" ? "grey" : "rgba(255,255,255,0.8)"
+
   return <AuthLayout>
     <Input
       placeholder="First Name"
@@ -123,7 +127,7 @@ const CreateAccount = ({navigation:{navigate}}:Props) => {
       autoCapitalize="none"
       onSubmitEditing={()=>onNext(lastNameRef)}
       blurOnSubmit={false}
-      placeholderTextColor={"rgba(255,255,255,0.8)"}
+      placeholderTextColor={placeholderTextColor}
       onChangeText={(text)=>setValue("firstName",text)}
     />
     <Input
@@ -134,7 +138,7 @@ const CreateAccount = ({navigation:{navigate}}:Props) => {
       ref={lastNameRef}
       onSubmitEditing={()=>onNext(userNameRef)}
       blurOnSubmit={false} 
-      placeholderTextColor={"rgba(255,255,255,0.8)"}
+      placeholderTextColor={placeholderTextColor}
       onChangeText={(text)=>setValue("lastName",text)}
     />
     <Input
@@ -145,7 +149,7 @@ const CreateAccount = ({navigation:{navigate}}:Props) => {
       ref={userNameRef}
       onSubmitEditing={()=>onNext(emailRef)}
       blurOnSubmit={false} 
-      placeholderTextColor={"rgba(255,255,255,0.8)"}
+      placeholderTextColor={placeholderTextColor}
       onChangeText={(text)=>setValue("userName",text)}
     />
     <Input
@@ -157,7 +161,7 @@ const CreateAccount = ({navigation:{navigate}}:Props) => {
       ref={emailRef}
       onSubmitEditing={()=>onNext(passwordRef)}
       blurOnSubmit={false} 
-      placeholderTextColor={"rgba(255,255,255,0.8)"}
+      placeholderTextColor={placeholderTextColor}
       onChangeText={(text)=>setValue("email",text)}
     />
     <Input
@@ -168,7 +172,7 @@ const CreateAccount = ({navigation:{navigate}}:Props) => {
       autoCorrect={false}
       ref={passwordRef}
       onSubmitEditing={handleSubmit(onValid)}
-      placeholderTextColor={"rgba(255,255,255,0.8)"}
+      placeholderTextColor={placeholderTextColor}
       lastOne={true}
       onChangeText={(text)=>setValue("password",text)}
     />

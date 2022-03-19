@@ -1,13 +1,13 @@
-import { gql, MutationUpdaterFunction, useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect } from "react";
-import { Image, useWindowDimensions } from "react-native";
+import { Image, ListRenderItem, TouchableOpacity, useWindowDimensions } from "react-native";
 import styled from "styled-components/native";
-import { colors } from "../color";
-import { FeedStackProps } from "../components/type";
-import { followUser, followUserVariables } from "../__generated__/followUser";
-import { seeProfile, seeProfileVariables } from "../__generated__/seeProfile";
-import { unfollowUser, unfollowUserVariables } from "../__generated__/unfollowUser";
+import { colors } from "../../../../color";
+import { FeedStackProps } from "../../../../components/type";
+import { followUser, followUserVariables } from "../../../../__generated__/followUser";
+import { seeProfile, seeProfileVariables, seeProfile_seeProfile_posts_post } from "../../../../__generated__/seeProfile";
+import { unfollowUser, unfollowUserVariables } from "../../../../__generated__/unfollowUser";
 
 const SEE_PROFILE = gql`
   query seeProfile($id:Int!,$cursorId:Int){
@@ -52,10 +52,8 @@ const UNFOLLOW_USER = gql`
 `;
 
 const Container = styled.View`
-  background-color: black;
+  background-color: ${props => props.theme.backgroundColor};
   flex:1;
-  /* align-items: center;
-  justify-content: center; */
 `;
 const UserInformationContainer = styled.View`
 
@@ -64,7 +62,6 @@ const UpperContainer = styled.View`
   flex-direction: row;
 `;
 const LeftContainer = styled.View`
-  /* padding: 30px 40px; */
   flex: 1;
   justify-content: center;
   align-items: center;
@@ -76,7 +73,6 @@ const Avatar = styled.Image`
   margin: 20px 0px;
 `;
 const RightContainer = styled.View`
-  /* flex-direction: row; */
   flex: 2;
 `;
 const UserNameContainer = styled.View`
@@ -85,7 +81,7 @@ const UserNameContainer = styled.View`
   flex: 1;
 `;
 const UserName = styled.Text`
-  color:white;
+  color:${props => props.theme.textColor};
   text-align: center;
   font-weight: 600;
   font-size: 18px;
@@ -96,19 +92,18 @@ const FollowContainer = styled.View`
   flex-direction: row;
 `;
 const FollowLink = styled.TouchableOpacity`
-  /* justify-content: center; */
   align-items: center;
   flex:1;
 `;
 const FollowText = styled.Text`
-  color:white;
+  color:${props => props.theme.textColor};
   font-weight: 600;
   font-size: 19px;
 `;
 const TotalFollower = styled(FollowText)``;
 const TotalFollowing = styled(FollowText)``;
 const FollowInfoText = styled.Text`
-  color:white;
+  color:${props => props.theme.textColor};
   font-size: 15px;
 `;
 const FollowBtnContainer = styled.View`
@@ -129,7 +124,7 @@ const FollowBtnText = styled.Text`
 const LowerContainer = styled.View`
 `;
 const Bio = styled.Text`
-  color:white;
+  color:${props => props.theme.textColor};
   text-align: center;
   padding: 5px 10px 20px 10px;
   font-size: 20px;
@@ -227,14 +222,22 @@ const Profile = ({navigation, route}:Props) => {
         }
       });
     }
-  }
+  };
+
+  const renderItem:ListRenderItem<seeProfile_seeProfile_posts_post> = ({item}) => {
+    return (
+      <TouchableOpacity onPress={()=>navigation.navigate("Photo",{photoId:item.id})}>
+        <Image source={{uri:item.file[0]}} style={{width:imageWidth,height:imageWidth}}/>
+      </TouchableOpacity>
+    );
+  };
   
   return (
     <Container>
     <UserInformationContainer>
       <UpperContainer>
         <LeftContainer>
-          <Avatar source={data?.seeProfile?.avatar?{uri:data.seeProfile.avatar}:require("../../assets/no_user.png")}/>
+          <Avatar source={data?.seeProfile?.avatar?{uri:data.seeProfile.avatar}:require("../../../../../assets/no_user.png")}/>
         </LeftContainer>
         <RightContainer>
           <UserNameContainer>
@@ -263,8 +266,8 @@ const Profile = ({navigation, route}:Props) => {
     </UserInformationContainer>
     <PostContainer
       data={data?.seeProfile?.posts.post}
-      renderItem={({item})=><Image source={{uri:item.file[0]}} style={{width:imageWidth,height:imageWidth}}/>}
-      keyExtractor={(item)=>item.id + ""}
+      renderItem={renderItem}
+      keyExtractor={(item:seeProfile_seeProfile_posts_post)=>item.id + ""}
       numColumns={numColumns}
     />
   </Container>

@@ -1,17 +1,19 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import Room from "../screens/Room";
-import Rooms from "../screens/Rooms";
+import Room from "./messageNav/Room";
+import Rooms from "./messageNav/Rooms";
+import { useColorScheme } from "react-native";
 
 const Stack = createStackNavigator();
 
 const MessageNav = () => {
+  const darkModeSubscription = useColorScheme();
   return (
     <Stack.Navigator screenOptions={{
       headerStyle:{
-        backgroundColor:"black",
+        backgroundColor: darkModeSubscription === "light" ? "white" : "black",
       },
-      headerTintColor:"white",
+      headerTintColor: darkModeSubscription === "light" ? "black" : "white",
       // cardStyle:{
       //   backgroundColor:"black"
       // },

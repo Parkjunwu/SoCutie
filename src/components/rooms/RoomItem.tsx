@@ -13,7 +13,7 @@ const RoomContainer = styled.TouchableOpacity`
 `;
 const Column = styled.View`
   flex-direction: row;
-  align-items:center;
+  align-items: center;
   justify-content: space-between;
 `;
 const Avatar = styled.Image`
@@ -24,13 +24,13 @@ const Avatar = styled.Image`
 `;
 const Data = styled.View``;
 const UserName = styled.Text`
-  color: white;
+  color: ${props => props.theme.textColor};
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 1px;
 `;
 const UnreadText = styled.Text`
-  color: white;
+  color: ${props => props.theme.textColor};
   font-weight: 500;
 `;
 const UnreadDot = styled.View`

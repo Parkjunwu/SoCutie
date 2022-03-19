@@ -3,14 +3,12 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useState } from "react";
 import { RefreshControl } from "react-native";
 import styled from "styled-components/native";
-import Photo from "../components/Post";
-import ScreenLayout from "../components/ScreenLayout";
-import { SearchStackProps } from "../components/type";
-import { seePost, seePostVariables } from "../__generated__/seePost";
+import Post from "../../../../components/Post";
+import ScreenLayout from "../../../../components/ScreenLayout";
+import { SearchStackProps } from "../../../../components/type";
+import { seePost, seePostVariables } from "../../../../__generated__/seePost";
 
-const Container = styled.ScrollView`
-  /* background-color: black; */
-`;
+const Container = styled.ScrollView``;
 
 const SEE_PHOTO = gql`
   query seePost($id: Int!){
@@ -54,10 +52,6 @@ const PhotoScreen = ({navigation,route}:Props) => {
   return (
     <ScreenLayout loading={loading}>
       <Container
-        // contentContainerStyle={{
-        //   alignItems: "center",
-        //   justifyContent: "center",
-        // }}
         refreshControl={
           <RefreshControl
             onRefresh={onRefresh}
@@ -65,7 +59,7 @@ const PhotoScreen = ({navigation,route}:Props) => {
           />
         }
       >
-        {data?.seePost && <Photo {...data.seePost}/>}
+        {data?.seePost && <Post {...data.seePost}/>}
       </Container>
     </ScreenLayout>
   );

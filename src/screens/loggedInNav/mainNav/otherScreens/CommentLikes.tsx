@@ -1,9 +1,9 @@
 import { gql, useQuery } from "@apollo/client";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect } from "react";
-import { FeedStackProps } from "../components/type";
-import UserList from "../components/userList/UserList";
-import { seeCommentLikes, seeCommentLikesVariables } from "../__generated__/seeCommentLikes";
+import { FeedStackProps } from "../../../../components/type";
+import UserList from "../../../../components/userList/UserList";
+import { seeCommentLikes, seeCommentLikesVariables } from "../../../../__generated__/seeCommentLikes";
 
 type Props = NativeStackScreenProps<FeedStackProps, 'CommentLikes'>;
 

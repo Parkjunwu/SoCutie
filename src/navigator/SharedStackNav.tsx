@@ -1,20 +1,20 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
 import styled from "styled-components/native";
-import Feed from "../screens/Feed";
-import Me from "../screens/Me";
-import Notification from "../screens/Notification";
-import Photo from "../screens/Photo";
-import Profile from "../screens/Profile";
-import Search from "../screens/Search";
-import Comments from "../screens/Comments";
-import EditProfile from "../screens/EditProfile";
-import Following from "../screens/Following";
-import Followers from "../screens/Followers";
-import PostLikes from "../screens/PostLikes";
-import CommentOfCommentLikes from "../screens/CommentOfCommentLikes";
-import CommentLikes from "../screens/CommentLikes";
-// import logo from "../../assets/logo.png"
+import Search from "../screens/loggedInNav/mainNav/Search";
+import CommentLikes from "../screens/loggedInNav/mainNav/otherScreens/CommentLikes";
+import Feed from "../screens/loggedInNav/mainNav/Feed";
+import Me from "../screens/loggedInNav/mainNav/Me";
+import Notification from "../screens/loggedInNav/mainNav/Notification";
+import Profile from "../screens/loggedInNav/mainNav/otherScreens/Profile";
+import Comments from "../screens/loggedInNav/mainNav/otherScreens/Comments";
+import EditProfile from "../screens/loggedInNav/mainNav/otherScreens/EditProfile";
+import PostLikes from "../screens/loggedInNav/mainNav/otherScreens/PostLikes";
+import CommentOfCommentLikes from "../screens/loggedInNav/mainNav/otherScreens/CommentOfCommentLikes";
+import Followers from "../screens/loggedInNav/mainNav/otherScreens/Followers";
+import Following from "../screens/loggedInNav/mainNav/otherScreens/Following";
+import PhotoScreen from "../screens/loggedInNav/mainNav/otherScreens/Photo";
+import { useColorScheme } from "react-native";
 
 const Stack = createNativeStackNavigator();
 
@@ -28,13 +28,14 @@ const Img = styled.Image`
 `;
 
 const SharedStackNav: React.FC<ISharedStackNavProps> = ({screenName}) => {
+  const darkModeSubscription = useColorScheme();
   return (
     <Stack.Navigator
       screenOptions={{
         headerStyle:{
-          backgroundColor:"black",
+          backgroundColor: darkModeSubscription === "light" ? "white" : "black"
         },
-        headerTintColor:"white",
+        headerTintColor: darkModeSubscription === "light" ? "black" : "white",
         headerShadowVisible:true,
         headerBackTitleVisible:false,
       }}
@@ -46,7 +47,7 @@ const SharedStackNav: React.FC<ISharedStackNavProps> = ({screenName}) => {
       {screenName === "Notification"?<Stack.Screen name={"Notification"} component={Notification}/>:null}
       {screenName === "Me"?<Stack.Screen name={"Me"} component={Me}/>:null}
       <Stack.Screen name="Profile" component={Profile}/>
-      <Stack.Screen name="Photo" component={Photo}/>
+      <Stack.Screen name="Photo" component={PhotoScreen}/>
       <Stack.Screen name="Comments" component={Comments}/>
       <Stack.Screen name="EditProfile" component={EditProfile} options={{title:"프로필 변경"}}/>
       {/* 이 아래는 형식은 다 똑같고 쿼리만 다름 */}
@@ -59,17 +60,3 @@ const SharedStackNav: React.FC<ISharedStackNavProps> = ({screenName}) => {
   );
 }
 export default SharedStackNav;
-
-// interface ISharedStackNavProps {
-//   component: React.ComponentType<FunctionComponent>;
-//   name: string;
-// }
-
-// const SharedStackNav: React.FC<ISharedStackNavProps> = ({name,component}) => {
-//   return <Stack.Navigator>
-//     <Stack.Screen name={name} component={component}/>
-//     <Stack.Screen name="Profile" component={Profile}/>
-//     <Stack.Screen name="Photo" component={Photo}/>
-//   </Stack.Navigator>;
-// }
-// export default SharedStackNav;

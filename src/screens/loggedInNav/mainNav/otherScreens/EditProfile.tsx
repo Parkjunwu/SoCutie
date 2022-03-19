@@ -3,12 +3,13 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react"; 
 import { Alert, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
-import { MeStackProps } from "../components/type";
-import useMe from "../hooks/useMe";
 import {Ionicons} from "@expo/vector-icons"
-import { editProfile, editProfileVariables } from "../__generated__/editProfile";
 import * as ImagePicker from 'expo-image-picker';
 import { ReactNativeFile } from "apollo-upload-client";
+import { MeStackProps } from "../../../../components/type";
+import useMe from "../../../../hooks/useMe";
+import { editProfile, editProfileVariables } from "../../../../__generated__/editProfile";
+import DismissKeyboard from "../../../../components/DismissKeyboard"
 
 const EDIT_PROFILE_MUTATION = gql`
   mutation editProfile(
@@ -36,7 +37,7 @@ const EDIT_PROFILE_MUTATION = gql`
 `;
 
 const Container = styled.View`
-  background-color: black;
+  background-color: ${props => props.theme.backgroundColor};
   flex: 1;
 `;
 const AvatarContainer = styled.View`
@@ -54,10 +55,9 @@ const ChangeAvatarBtn = styled.TouchableOpacity`
 
 `;
 const ChangeAvatarBtnText = styled.Text`
-  color:white;
+  color:${props => props.theme.textColor};
 `;
 const UnderLine = styled.View`
-  /* margin: 0px auto; */
   width: 100%;
   height: 1px;
   background-color: grey;
@@ -69,7 +69,7 @@ const UserInfoContainer = styled.View`
 const UserName = styled(ChangeAvatarBtnText)``;
 const UserNameInput = styled.TextInput`
   padding: 10px 0px;
-  color:white;
+  color:${props => props.theme.textColor};
 `;
 const Bio = styled(ChangeAvatarBtnText)`
   margin-top: 8px;
@@ -165,23 +165,27 @@ const EditProfile = ({navigation,route}:Props) => {
     setBioValue(prevBio);
   },[data])
 
-  return <Container>
-    <AvatarContainer>
-      <Avatar source={image?{uri:image}:require("../../assets/no_user.png")}/>
-      <ChangeAvatarBtn onPress={pickImage}>
-        <ChangeAvatarBtnText>프로필 사진 변경</ChangeAvatarBtnText>
-      </ChangeAvatarBtn>
-    </AvatarContainer>
-    <UserInfoContainer>
-      <UserName>이름</UserName>
-      {/* 중복 확인? UserName 은 unique 니까. 굳이 unique 할 필요는 없을 듯 */}
-      <UserNameInput value={userNameValue} onChangeText={text=>setUserNameValue(text)} />
-      <UnderLine/>
-      <Bio>소개</Bio>
-      <BioInput/>
-      <UnderLine/>
-    </UserInfoContainer>
-  </Container>;
+  return (
+    <DismissKeyboard>
+      <Container>
+        <AvatarContainer>
+          <Avatar source={image?{uri:image}:require("../../../../../assets/no_user.png")}/>
+          <ChangeAvatarBtn onPress={pickImage}>
+            <ChangeAvatarBtnText>프로필 사진 변경</ChangeAvatarBtnText>
+          </ChangeAvatarBtn>
+        </AvatarContainer>
+        <UserInfoContainer>
+          <UserName>이름</UserName>
+          {/* 중복 확인? UserName 은 unique 니까. 굳이 unique 할 필요는 없을 듯 */}
+          <UserNameInput value={userNameValue} onChangeText={text=>setUserNameValue(text)} />
+          <UnderLine/>
+          <Bio>소개</Bio>
+          <BioInput/>
+          <UnderLine/>
+        </UserInfoContainer>
+      </Container>
+    </DismissKeyboard>
+  );
 };
 
 export default EditProfile;

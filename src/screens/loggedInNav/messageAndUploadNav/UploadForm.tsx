@@ -4,14 +4,14 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Image, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import {Ionicons} from "@expo/vector-icons"
 import styled from "styled-components/native";
-import DismissKeyboard from "../components/DismissKeyboard";
 import { useForm } from "react-hook-form";
-import { colors } from "../color";
 import { ApolloCache, DefaultContext, gql, MutationUpdaterFunction, useMutation } from "@apollo/client";
 import { ReactNativeFile } from "apollo-upload-client";
-import { uploadPost, uploadPostVariables } from "../__generated__/uploadPost";
-import useMe from "../hooks/useMe";
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist'
+import { colors } from "../../../color";
+import { uploadPost, uploadPostVariables } from "../../../__generated__/uploadPost";
+import useMe from "../../../hooks/useMe";
+import DismissKeyboard from "../../../components/DismissKeyboard";
 
 // const PHOTO_FRAGMENT = gql`
 //   fragment PhotoFragment on Photo {

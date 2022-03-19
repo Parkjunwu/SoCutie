@@ -1,12 +1,10 @@
 import { BottomTabScreenProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { NavigatorScreenParams } from "@react-navigation/native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React from "react";
-import { View } from "react-native";
+import { useColorScheme, View } from "react-native";
 import styled, { css } from "styled-components/native";
-import TabIcon from "../components/nav/TabIcon";
-import useMe from "../hooks/useMe";
-import StackNavFactory from "./SharedStackNav";
+import TabIcon from "../../components/nav/TabIcon";
+import useMe from "../../hooks/useMe";
+import SharedStackNav from "../../navigator/SharedStackNav"
 
 const UserImg = styled.Image<{focused:boolean}>`
   width: 26px;
@@ -33,27 +31,27 @@ type Props = BottomTabScreenProps<{Upload:undefined,CameraTab:undefined}, 'Camer
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
-const TabsNav = () => {
+const MainNav = () => {
   const {data} = useMe();
-  // data?.me?.avatar
+  const darkModeSubscription = useColorScheme();
   return (
   <Tab.Navigator
     screenOptions={{
       // headerTransparent:true
       headerShown:false,
       tabBarStyle:{
-        backgroundColor:"black",
-        borderTopColor:"rgba(255,255,255,0.5)",
+        backgroundColor: darkModeSubscription === "light" ? "white" : "black",
+        borderTopColor: darkModeSubscription === "light" ? "rgba(0,0,0,0.5)":"rgba(255,255,255,0.5)",
       },
-      tabBarActiveTintColor:"white",
+      tabBarActiveTintColor: darkModeSubscription === "light" ? "rgba(0,0,0,0.7)" : "white",
       tabBarShowLabel:false,
     }}
   >
     <Tab.Screen name="FeedTab" options={{tabBarIcon:({focused,color})=><TabIcon iconName="home" focused={focused} color={color}/>}}>
-      {()=><StackNavFactory screenName="Feed"/>} 
+      {()=><SharedStackNav screenName="Feed"/>} 
     </Tab.Screen>
     <Tab.Screen name="SearchTab" options={{tabBarIcon:({focused,color})=><TabIcon iconName="search" focused={focused} color={color}/>}}>
-      {()=><StackNavFactory screenName="Search"/>} 
+      {()=><SharedStackNav screenName="Search"/>} 
     </Tab.Screen>
 
     <Tab.Screen
@@ -74,7 +72,7 @@ const TabsNav = () => {
       }}
     />
     <Tab.Screen name="NotificationTab" options={{tabBarIcon:({focused,color})=><TabIcon iconName="heart" focused={focused} color={color}/>}}>
-      {()=><StackNavFactory screenName="Notification"/>} 
+      {()=><SharedStackNav screenName="Notification"/>} 
     </Tab.Screen>
     <Tab.Screen name="MeTab" options={{tabBarIcon:({focused,color})=>
     {return data?.me?.avatar ?
@@ -84,9 +82,9 @@ const TabsNav = () => {
       <TabIcon iconName="person" focused={focused} color={color}/>
     }
     }}>
-      {()=><StackNavFactory screenName="Me"/>} 
+      {()=><SharedStackNav screenName="Me"/>} 
     </Tab.Screen>
   </Tab.Navigator>
   );
 }
-export default TabsNav;
+export default MainNav;

@@ -2,11 +2,11 @@ import { gql, useQuery } from "@apollo/client";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
 import { FlatList, ListRenderItem, TouchableOpacity } from "react-native";
-import Post from "../components/Post";
-import ScreenLayout from "../components/ScreenLayout";
-import { FeedStackProps } from "../components/type";
-import { seeFeed, seeFeedVariables, seeFeed_seeFeed } from "../__generated__/seeFeed";
 import {Ionicons} from "@expo/vector-icons"
+import { FeedStackProps } from "../../../components/type";
+import { seeFeed, seeFeedVariables, seeFeed_seeFeed } from "../../../__generated__/seeFeed";
+import Post from "../../../components/Post";
+import ScreenLayout from "../../../components/ScreenLayout";
 
 type Props = NativeStackScreenProps<FeedStackProps, 'Feed'>;
 

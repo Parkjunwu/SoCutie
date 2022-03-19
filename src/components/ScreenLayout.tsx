@@ -3,10 +3,8 @@ import { ActivityIndicator } from "react-native";
 import styled from "styled-components/native";
 
 const Container = styled.View`
-  background-color: black;
+  background-color: ${props=>props.theme.backgroundColor};
   flex:1;
-  /* align-items: center; */
-  /* justify-content: center; */
 `;
 interface IScreenProps {
   loading:boolean

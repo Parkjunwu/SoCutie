@@ -1,11 +1,12 @@
 import React from "react";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import SelectPhoto from "../screens/SelectPhoto";
-import TakePhoto from "../screens/TakePhoto";
-import { createNativeStackNavigator, NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
+import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
-import { RouteProp, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
+import SelectPhoto from "./uploadNav/SelectPhoto";
+import TakePhoto from "./uploadNav/TakePhoto";
+
 
 const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -13,7 +14,7 @@ const Stack = createNativeStackNavigator();
 ///// 대충함. 원래는 네비게이션 별로 나눠야함. 걍 여기서만 쓰니까 screen 두개만 씀.
 type INavProps = {
   Select:undefined;
-  Tabs:undefined;
+  MainNav:undefined;
 }
 type Props = NativeStackScreenProps<INavProps, 'Select'>;
 
@@ -36,7 +37,6 @@ const UploadNav = () => {
         }
       }}
     >
-      {/* <Tab.Screen name="Select" component={SelectPhoto} /> */}
       <Tab.Screen name="Select">
         {()=><Stack.Navigator
           screenOptions={{
@@ -44,7 +44,7 @@ const UploadNav = () => {
               backgroundColor:"black",
             },
             headerTintColor:"white",
-            headerLeft:({tintColor})=><TouchableOpacity onPress={() => navigation.navigate("Tabs")}>
+            headerLeft:({tintColor})=><TouchableOpacity onPress={() => navigation.goBack()}>
                 <Ionicons name="close" size={24} color={tintColor}/>
               </TouchableOpacity>,
             title:"Choose a photo"

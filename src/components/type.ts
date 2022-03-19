@@ -7,11 +7,12 @@ type baseProps = {
   CommentOfCommentLikes: {commentOfCommentId:number};
   Followers: {userId:number};
   Following: {userId:number};
+  Photo: {photoId:number};
 }
 
 export type FeedStackProps = baseProps & {
   Feed: undefined;
-  Photo: undefined;
+  Messages: undefined;
 };
 
 export type MeStackProps = baseProps & {

@@ -4,14 +4,15 @@ import { ActivityIndicator, GestureResponderEvent } from "react-native";
 import { colors } from "../../color";
 
 const Button = styled.TouchableOpacity`
-  background-color: ${colors.blue};
+  background-color: ${colors.yellow};
   padding: 15px 10px;
   border-radius: 5px;
   width: 100%;
   opacity: ${prop => prop.disabled?0.5:1};
 `;
 const ButtonText = styled.Text`
-  color: white;
+  /* color: white; */
+  color: ${colors.darkYellow};
   font-size: 16px;
   font-weight: 600;
   text-align: center;

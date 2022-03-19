@@ -1,10 +1,7 @@
-import { gql } from "@apollo/client";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { FlatList, RefreshControl, View } from "react-native";
+import { FlatList, RefreshControl, useColorScheme, View } from "react-native";
 import styled from "styled-components/native";
 import ScreenLayout from "../ScreenLayout";
-import { FeedStackProps } from "../type";
 import UserRow from "../UserRow";
 
 // type Props = NativeStackScreenProps<FeedStackProps, 'Likes'> & {
@@ -52,6 +49,8 @@ const UserList = ({dataDotQuery,refetch,loading}:Props) => {
     if(user) return <UserRow {...user}/>;
     return null;
   }
+  
+  const darkModeSubscription = useColorScheme();
 
   return (
     <ScreenLayout loading={loading}>
@@ -63,7 +62,7 @@ const UserList = ({dataDotQuery,refetch,loading}:Props) => {
         keyExtractor={(item)=>item?.id + ""}
         refreshControl={refreshControl}
         ListEmptyComponent={NoDataComponent}
-        ItemSeparatorComponent={()=><View style={{width:"100%",height:2,backgroundColor:"rgba(255,255,255,0.2)"}} />}
+        ItemSeparatorComponent={()=><View style={{width:"100%",height:2,backgroundColor: darkModeSubscription === "light" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.2)"}} />}
       />
     </ScreenLayout>
   );

@@ -1,11 +1,11 @@
 import { gql, useApolloClient, useQuery } from "@apollo/client";
 import { UpdateQueryFn } from "@apollo/client/core/watchQueryOptions";
 import React, { useEffect, useState } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { FlatList } from "react-native";
 import styled from "styled-components/native";
-import NotificationLayout from "../components/notification/NotificationLayout";
-import { seeUserNotificationList, seeUserNotificationListVariables } from "../__generated__/seeUserNotificationList";
-import { userNotificationUpdate } from "../__generated__/userNotificationUpdate";
+import NotificationLayout from "../../../components/notification/NotificationLayout";
+import { seeUserNotificationList, seeUserNotificationListVariables } from "../../../__generated__/seeUserNotificationList";
+import { userNotificationUpdate } from "../../../__generated__/userNotificationUpdate";
 
 const SEE_USER_NOTIFICATION_LIST = gql`
   query seeUserNotificationList($cursorId:Int) {

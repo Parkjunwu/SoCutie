@@ -1,13 +1,14 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect } from "react";
-import { Image, TouchableOpacity, useWindowDimensions } from "react-native";
+import { Image, ListRenderItem, TouchableOpacity, useWindowDimensions } from "react-native";
 import styled from "styled-components/native";
-import { colors } from "../color";
-import { MeStackProps } from "../components/type";
-import useMe from "../hooks/useMe";
+import { colors } from "../../../color";
+import { MeStackProps } from "../../../components/type";
+import useMe from "../../../hooks/useMe";
+import {me_me_posts_post} from "../../../__generated__/me"
 
 const Container = styled.View`
-  background-color: black;
+  background-color: ${props => props.theme.backgroundColor};
   flex:1;
 `;
 const UserInformationContainer = styled.View`
@@ -36,7 +37,7 @@ const UserNameContainer = styled.View`
   flex: 1;
 `;
 const UserName = styled.Text`
-  color:white;
+  color:${props => props.theme.textColor};
   text-align: center;
   font-weight: 600;
   font-size: 18px;
@@ -51,14 +52,14 @@ const FollowLink = styled.TouchableOpacity`
   flex:1;
 `;
 const FollowText = styled.Text`
-  color:white;
+  color:${props => props.theme.textColor};
   font-weight: 600;
   font-size: 19px;
 `;
 const TotalFollower = styled(FollowText)``;
 const TotalFollowing = styled(FollowText)``;
 const FollowInfoText = styled.Text`
-  color:white;
+  color:${props => props.theme.textColor};
   font-size: 15px;
 `;
 const FollowBtnContainer = styled.View`
@@ -79,7 +80,7 @@ const FollowBtnText = styled.Text`
 const LowerContainer = styled.View`
 `;
 const Bio = styled.Text`
-  color:white;
+  color:${props => props.theme.textColor};
   text-align: center;
   padding: 5px 10px 20px 10px;
   font-size: 20px;
@@ -116,11 +117,18 @@ const Me = ({navigation,route}:Prop) => {
   const onPressFollowing = () => {
     navigation.navigate("Following",{userId:data.me.id});
   };
+  const renderItem:ListRenderItem<me_me_posts_post> = ({item}) => {
+    return (
+      <TouchableOpacity onPress={()=>navigation.navigate("Photo",{photoId:item.id})}>
+        <Image source={{uri:item.file[0]}} style={{width:imageWidth,height:imageWidth}}/>
+      </TouchableOpacity>
+    );
+  }
   return <Container>
     <UserInformationContainer>
       <UpperContainer>
         <LeftContainer>
-          <Avatar source={data.me.avatar?{uri:data.me.avatar}:require("../../assets/no_user.png")}/>
+          <Avatar source={data.me.avatar?{uri:data.me.avatar}:require("../../../../assets/no_user.png")}/>
         </LeftContainer>
         <RightContainer>
           <UserNameContainer>
@@ -149,8 +157,8 @@ const Me = ({navigation,route}:Prop) => {
     </UserInformationContainer>
     <PostContainer
       data={data.me.posts.post}
-      renderItem={({item})=><TouchableOpacity><Image source={{uri:item.file[0]}} style={{width:imageWidth,height:imageWidth}}/></TouchableOpacity>}
-      keyExtractor={(item)=>item.id + ""}
+      renderItem={renderItem}
+      keyExtractor={(item:me_me_posts_post)=>item.id + ""}
       numColumns={numColumns}
     />
   </Container>;

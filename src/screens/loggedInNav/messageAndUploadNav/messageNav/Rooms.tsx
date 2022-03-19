@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
-import { FlatList, View, ListRenderItem, TouchableOpacity } from "react-native";
-import {Ionicons} from "@expo/vector-icons";
+import { FlatList, View, ListRenderItem, TouchableOpacity, useColorScheme } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { gql, useQuery } from "@apollo/client";
-import { ROOM_FRAGMENT } from "../fragment";
-import ScreenLayout from "../components/ScreenLayout";
-import { seeRooms, seeRooms_seeRooms } from "../__generated__/seeRooms";
-import RoomItem from "../components/rooms/RoomItem";
+import { ROOM_FRAGMENT } from "../../../../fragment";
+import { seeRooms, seeRooms_seeRooms } from "../../../../__generated__/seeRooms";
+import RoomItem from "../../../../components/rooms/RoomItem";
+import ScreenLayout from "../../../../components/ScreenLayout";
 
 const SEE_ROOMS = gql`
   query seeRooms {
@@ -25,6 +25,7 @@ type NavParam = {
 type Props = NativeStackScreenProps<NavParam>
 
 const Rooms = ({navigation}:Props) => {
+  const darkModeSubscription = useColorScheme();
   // Room 목록 받음
   const {data,loading,refetch} = useQuery<seeRooms>(SEE_ROOMS);
   console.log(data);
@@ -47,7 +48,7 @@ const Rooms = ({navigation}:Props) => {
   return <ScreenLayout loading={loading}>
     {data?.seeRooms && <FlatList
       style={{width:"100%"}}
-      ItemSeparatorComponent={()=><View style={{height:1,width:"100%",backgroundColor:"rgba(255,255,255,0.5)"}}/>}
+      ItemSeparatorComponent={()=><View style={{height:1,width:"100%",backgroundColor: darkModeSubscription === "light"?"rgba(0,0,0,0.1)":"rgba(255,255,255,0.5)"}}/>}
       data={data.seeRooms}
       keyExtractor={room => room?.id +""}
       renderItem={renderRooms}

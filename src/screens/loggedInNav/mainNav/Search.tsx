@@ -2,19 +2,20 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect } from "react";
 import { ActivityIndicator, FlatList, ListRenderItem, TouchableOpacity, useWindowDimensions } from "react-native";
 import styled from "styled-components/native";
-import { SearchStackProps } from "../components/type";
+import { SearchStackProps } from "../../../components/type";
 import { Ionicons } from "@expo/vector-icons";
 import { SubmitHandler, useForm } from "react-hook-form";
-import DismissKeyboard from "../components/DismissKeyboard";
+import DismissKeyboard from "../../../components/DismissKeyboard";
 import { gql, useLazyQuery } from "@apollo/client";
-import { searchPosts, searchPostsVariables, searchPosts_searchPosts } from "../__generated__/searchPosts";
+import { searchPosts, searchPostsVariables, searchPosts_searchPosts } from "../../../__generated__/searchPosts";
 
 const Container = styled.View`
-  background-color: black;
+  background-color: ${props => props.theme.backgroundColor};
   flex:1;
 `;
 const HeaderSearch = styled.View<{width:number}>`
-  background-color: rgba(255,255,255,0.8);
+  /* background-color: rgba(255,255,255,0.8); */
+  background-color: ${props => props.theme.textInputBackgroundColor};
   padding: 10px 10px;
   border-radius: 25px;
   /* width: 200px; */
@@ -33,7 +34,7 @@ const MessageContainer = styled.View`
   /* background-color: red; */
 `;
 const MessageText = styled.Text`
-  color: white;
+  color: ${props => props.theme.textColor};
   font-weight: 600;
   margin-top: 10px;
 `;
@@ -95,6 +96,7 @@ const Search = ({navigation:{navigate,setOptions},route}:Props) => {
   // }
   useEffect(()=>{
     setOptions({
+      headerShadowVisible:false,
       headerTitle:() => <HeaderSearch width={width}>
         <TouchableOpacity onPress={handleSubmit(onVaild)}>
           <Ionicons name="search" size={30} />

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components/native";
 import * as MediaLibrary from 'expo-media-library';
-import { Alert, FlatList, Image, ListRenderItem, Text, TouchableOpacity, useWindowDimensions } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { colors } from "../color";
+import { Alert, FlatList, Image, ListRenderItem, TouchableOpacity, useWindowDimensions } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { colors } from "../../../../color";
 
 const Container = styled.View`
   flex:1;

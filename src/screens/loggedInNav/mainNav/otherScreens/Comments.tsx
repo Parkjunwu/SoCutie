@@ -1,13 +1,13 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { ListRenderItem, Text, View } from "react-native";
 import styled from "styled-components/native";
-import CommentLayout from "../components/comment/CommentLayout";
-import { FeedStackProps } from "../components/type";
-import useMe from "../hooks/useMe";
-import { createComment, createCommentVariables } from "../__generated__/createComment";
-import { seeComments, seeCommentsVariables, seeComments_seeComments } from "../__generated__/seeComments";
+import CommentLayout from "../../../../components/comment/CommentLayout";
+import { FeedStackProps } from "../../../../components/type";
+import useMe from "../../../../hooks/useMe";
+import { createComment, createCommentVariables } from "../../../../__generated__/createComment";
+import { seeComments, seeCommentsVariables, seeComments_seeComments } from "../../../../__generated__/seeComments";
 
 const SEE_COMMENTS = gql`
   query seeComments($postId:Int!,$cursorId:Int) {
@@ -38,16 +38,14 @@ const CREATE_COMMENT = gql`
 `;
 
 const Container = styled.View`
-  background-color: black;
+  background-color: ${props => props.theme.backgroundColor};
   flex:1;
 `;
 const CommentFlatList = styled.FlatList`
   flex:10;
-  /* background-color: yellow; */
 `;
 const CreateCommentContainer = styled.View`
   flex: 1;
-  /* background-color: blue; */
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
@@ -79,9 +77,9 @@ const Comments = ({navigation,route}:Props) => {
   });
   console.log(data)
   ///
-  // useEffect(()=>{
-  //   refetch();
-  // },[])
+  useEffect(()=>{
+    refetch();
+  },[])
   ///
 
   const [value,setValue] = useState("");
@@ -90,7 +88,7 @@ const Comments = ({navigation,route}:Props) => {
   const [createComment,{data:createCommentData}] = useMutation<createComment,createCommentVariables>(CREATE_COMMENT);
 
   const {data:meData} = useMe();
-  const renderItem = ({item}:{item:seeComments_seeComments}) => {
+  const renderItem:ListRenderItem<seeComments_seeComments> = ({item}) => {
     return <CommentLayout comment={item}/>;
   }
   const onPressCreateComment = () => {
@@ -157,7 +155,7 @@ const Comments = ({navigation,route}:Props) => {
       data={data?.seeComments}
       renderItem={renderItem}
       // renderItem={({item})=><CommentLayout data={item}/>}
-      keyExtractor={(item) => item.id+""}
+      keyExtractor={(item:seeComments_seeComments) => item.id+""}
       ListEmptyComponent={()=><View style={{justifyContent:"center",alignItems:"center"}}><Text style={{color:"white"}}>댓글이 없습니다.</Text></View>}
     />
     <CreateCommentContainer>

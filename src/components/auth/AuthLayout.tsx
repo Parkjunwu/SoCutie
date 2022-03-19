@@ -1,10 +1,10 @@
 import React from "react";
-import { Keyboard, Platform, TouchableWithoutFeedback } from "react-native";
+import { Platform } from "react-native";
 import styled from "styled-components/native";
 import DismissKeyboard from "../DismissKeyboard";
 
 const Container = styled.View`
-  background-color: black;
+  background-color: ${props=>props.theme.backgroundColor};
   flex:1;
   align-items: center;
   justify-content: center;
@@ -14,16 +14,13 @@ const Logo = styled.Image`
   max-width:50%;
   width: 100%;
   height: 100px;
-  /* margin: 0 auto; */
 `;
 const KeyboardAvoidLayout = styled.KeyboardAvoidingView`
-  /* flex:1; */
   width: 100%;
-  /* padding: 0px auto; */
   align-items:center;
-  /* justify-content:center; */
 `;
 
+// 얘 아래에 flex:1 인 View 있어야 함.
 const AuthLayout:React.FC = ({children}) => {
   return (
   <DismissKeyboard>

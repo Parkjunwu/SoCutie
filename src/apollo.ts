@@ -5,6 +5,7 @@ import { getMainDefinition, offsetLimitPagination } from "@apollo/client/utiliti
 import {onError} from "@apollo/client/link/error"
 import { createUploadLink } from "apollo-upload-client";
 import { WebSocketLink } from '@apollo/client/link/ws';
+import { SubscriptionClient } from "subscriptions-transport-ws";
 
 // 토큰 상수
 const TOKEN = "token"

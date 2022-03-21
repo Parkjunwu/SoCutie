@@ -142,7 +142,7 @@ const Search = ({navigation:{navigate,setOptions},route}:Props) => {
     {data?.searchPosts !== undefined ? (
       data?.searchPosts?.length === 0 ? (
         <MessageContainer>
-          <MessageText>Could not find anything</MessageText>
+          <MessageText>해당 키워드의 검색 결과가 없습니다.</MessageText>
         </MessageContainer>
         ) : (
         <FlatList

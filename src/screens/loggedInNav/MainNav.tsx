@@ -1,10 +1,19 @@
+import { gql, useQuery } from "@apollo/client";
 import { BottomTabScreenProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import React from "react";
+import React, { useEffect } from "react";
 import { useColorScheme, View } from "react-native";
 import styled, { css } from "styled-components/native";
 import TabIcon from "../../components/nav/TabIcon";
 import useMe from "../../hooks/useMe";
 import SharedStackNav from "../../navigator/SharedStackNav"
+import { getNumberOfUnreadNotification } from "../../__generated__/getNumberOfUnreadNotification";
+
+const GET_NUMBER_OF_UNREAD_NOTIFICATION = gql`
+  query getNumberOfUnreadNotification {
+    getNumberOfUnreadNotification
+  }
+`;
+
 
 const UserImg = styled.Image<{focused:boolean}>`
   width: 26px;
@@ -34,6 +43,16 @@ const Tab = createBottomTabNavigator<TabParamList>();
 const MainNav = () => {
   const {data} = useMe();
   const darkModeSubscription = useColorScheme();
+  let numberOfUnreadIfZeroIsNull: number|null;
+  const { refetch } = useQuery<getNumberOfUnreadNotification>(GET_NUMBER_OF_UNREAD_NOTIFICATION,{
+    onCompleted:(data) => {
+      numberOfUnreadIfZeroIsNull = data.getNumberOfUnreadNotification !== 0 ? data.getNumberOfUnreadNotification : null
+    }
+  });
+  useEffect(()=>{
+    refetch();
+  },[])
+
   return (
   <Tab.Navigator
     screenOptions={{
@@ -49,6 +68,7 @@ const MainNav = () => {
   >
     <Tab.Screen name="FeedTab" options={{tabBarIcon:({focused,color})=><TabIcon iconName="home" focused={focused} color={color}/>}}>
       {()=><SharedStackNav screenName="Feed"/>} 
+      
     </Tab.Screen>
     <Tab.Screen name="SearchTab" options={{tabBarIcon:({focused,color})=><TabIcon iconName="search" focused={focused} color={color}/>}}>
       {()=><SharedStackNav screenName="Search"/>} 
@@ -71,8 +91,8 @@ const MainNav = () => {
         <TabIcon iconName="camera" focused={focused} color={color}/>
       }}
     />
-    <Tab.Screen name="NotificationTab" options={{tabBarIcon:({focused,color})=><TabIcon iconName="heart" focused={focused} color={color}/>}}>
-      {()=><SharedStackNav screenName="Notification"/>} 
+    <Tab.Screen name="NotificationTab" options={{tabBarIcon:({focused,color})=><TabIcon iconName="heart" focused={focused} color={color}/>, tabBarBadge:numberOfUnreadIfZeroIsNull }}>
+      {()=><SharedStackNav screenName="Notification" ifNotificationGetNumberOfUnread={numberOfUnreadIfZeroIsNull}/>}
     </Tab.Screen>
     <Tab.Screen name="MeTab" options={{tabBarIcon:({focused,color})=>
     {return data?.me?.avatar ?

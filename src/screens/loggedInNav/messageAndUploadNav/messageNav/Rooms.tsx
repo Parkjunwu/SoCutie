@@ -7,6 +7,7 @@ import { ROOM_FRAGMENT } from "../../../../fragment";
 import { seeRooms, seeRooms_seeRooms } from "../../../../__generated__/seeRooms";
 import RoomItem from "../../../../components/rooms/RoomItem";
 import ScreenLayout from "../../../../components/ScreenLayout";
+import { MessageNavProps } from "../../../../components/type";
 
 const SEE_ROOMS = gql`
   query seeRooms {
@@ -17,18 +18,14 @@ const SEE_ROOMS = gql`
   ${ROOM_FRAGMENT}
 `;
 
-type NavParam = {
-  Rooms:undefined;
-  Room:undefined;
-}
 
-type Props = NativeStackScreenProps<NavParam>
+type Props = NativeStackScreenProps<MessageNavProps>
 
 const Rooms = ({navigation}:Props) => {
   const darkModeSubscription = useColorScheme();
   // Room 목록 받음
   const {data,loading,refetch} = useQuery<seeRooms>(SEE_ROOMS);
-  console.log(data);
+  // console.log(data);
   // 마운트 시에 헤더 설정, 데이터 받아옴.
   useEffect(()=>{
     navigation.setOptions({
@@ -36,6 +33,8 @@ const Rooms = ({navigation}:Props) => {
         <Ionicons name="chevron-down" color={tintColor} size={30} />
       </TouchableOpacity>
     })
+  },[])
+  useEffect(()=>{
     refetch();
   },[])
   // Room 렌더링

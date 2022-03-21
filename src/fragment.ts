@@ -11,3 +11,16 @@ export const ROOM_FRAGMENT = gql`
     unreadTotal
   }
 `;
+
+export const MESSAGE_FRAGMENT = gql`
+  fragment MessageFragment on Message {
+    id
+    payload
+    user{
+      id
+      userName
+      avatar
+    }
+    read
+  }
+`;

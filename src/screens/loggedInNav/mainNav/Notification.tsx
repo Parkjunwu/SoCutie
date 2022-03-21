@@ -1,9 +1,12 @@
-import { gql, useApolloClient, useQuery } from "@apollo/client";
+import { gql, useApolloClient, useMutation, useQuery } from "@apollo/client";
 import { UpdateQueryFn } from "@apollo/client/core/watchQueryOptions";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
 import { FlatList } from "react-native";
 import styled from "styled-components/native";
 import NotificationLayout from "../../../components/notification/NotificationLayout";
+import { FeedStackProps } from "../../../components/type";
+import { readNotification } from "../../../__generated__/readNotification";
 import { seeUserNotificationList, seeUserNotificationListVariables } from "../../../__generated__/seeUserNotificationList";
 import { userNotificationUpdate } from "../../../__generated__/userNotificationUpdate";
 
@@ -19,6 +22,15 @@ const SEE_USER_NOTIFICATION_LIST = gql`
       which
       read
       createdAt
+    }
+  }
+`;
+
+const READ_NOTIFICATION = gql`
+  mutation readNotification {
+    readNotification {
+      ok
+      error
     }
   }
 `;
@@ -46,11 +58,34 @@ const ListFooterComponentText = styled.Text`
 
 // let cursorId;
 
-const Notification = () => {
+type Props = NativeStackScreenProps<FeedStackProps, 'Notification'>;
+
+const Notification = ({navigation,route}:Props) => {
   // notification 데이터 받기
   const {data,fetchMore,refetch,subscribeToMore} = useQuery<seeUserNotificationList,seeUserNotificationListVariables>(SEE_USER_NOTIFICATION_LIST);
   // 처음 마운트 됐을 때 다시 받기.
-  refetch();
+  useEffect(()=>{
+    refetch();
+  },[])
+
+  // 안읽은 notification 있을 시 읽음 처리
+  const [readNotification] = useMutation<readNotification>(READ_NOTIFICATION);
+  useEffect(()=>{
+    if(route.params.unreadNotification) {
+      readNotification({
+        update: (cache,result) => {
+          if(result.data.readNotification.ok) {
+            cache.modify({
+              id: "ROOT_QUERY",
+              fields: {
+                getNumberOfUnreadMessage:()=>0,
+              }
+            });
+          }
+        }
+      });
+    };
+  },[])
 
   ///[Error: Cannot read properties of undefined (reading 'id')] 는 subscribed 어딘가 에서 나옴.
   const client = useApolloClient()

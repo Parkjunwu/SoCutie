@@ -1,11 +1,10 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { ListRenderItem, Text, View } from "react-native";
+import { ListRenderItem, Platform, Text, View } from "react-native";
 import styled from "styled-components/native";
-import CommentLayout from "../../../../components/comment/CommentLayout";
+import SingleCommentLayout from "../../../../components/comment/SingleCommentLayout";
 import { FeedStackProps } from "../../../../components/type";
-import useMe from "../../../../hooks/useMe";
 import { createComment, createCommentVariables } from "../../../../__generated__/createComment";
 import { seeComments, seeCommentsVariables, seeComments_seeComments } from "../../../../__generated__/seeComments";
 
@@ -37,6 +36,9 @@ const CREATE_COMMENT = gql`
   }
 `;
 
+const KeyboardAvoidLayout = styled.KeyboardAvoidingView`
+  flex: 1;
+`;
 const Container = styled.View`
   background-color: ${props => props.theme.backgroundColor};
   flex:1;
@@ -54,7 +56,7 @@ const CreateCommentContainer = styled.View`
 `;
 const CommentInput = styled.TextInput`
   padding: 10px;
-  background-color: white;
+  background-color: ${props=>props.theme.textInputBackgroundColor};
   border-radius: 3px;
   width: 85%;
 `;
@@ -75,21 +77,18 @@ const Comments = ({navigation,route}:Props) => {
       postId:route.params.postId
     },
   });
-  console.log(data)
-  ///
+
   useEffect(()=>{
     refetch();
   },[])
-  ///
 
   const [value,setValue] = useState("");
   console.log(value);
 
-  const [createComment,{data:createCommentData}] = useMutation<createComment,createCommentVariables>(CREATE_COMMENT);
+  const [createComment] = useMutation<createComment,createCommentVariables>(CREATE_COMMENT);
 
-  const {data:meData} = useMe();
   const renderItem:ListRenderItem<seeComments_seeComments> = ({item}) => {
-    return <CommentLayout comment={item}/>;
+    return <SingleCommentLayout comment={item}/>;
   }
   const onPressCreateComment = () => {
     createComment({
@@ -97,73 +96,36 @@ const Comments = ({navigation,route}:Props) => {
         payload:value,
         postId:route.params.postId
       },
-      // 댓글 올리고 나서 캐시 업로드
+      // 댓글 올리고 나서 댓글 다시 받음
       update:(cache, mutationResult) => {
         if(mutationResult.data.createComment.ok){
-          // 댓글 캐시 만들고. id 받아야 하나? 필요 없지 않나? refetch 할거면. 걍 랜덤으로 만들어
-          const nowTime = new Date().getTime()
-          const data = {
-            id:nowTime,
-            user:{
-              id:meData.me.id,
-              userName:meData.me.userName,
-              avatar:meData.me.avatar,
-            },
-            payload:value,
-            createdAt:nowTime,
-            isMine:true,
-            totalLikes:0,
-            totalCommentOfComments:0,
-            isLiked:false,
-          }
-          const result = cache.writeFragment({
-            id: `Comment:${nowTime}`,
-            fragment: gql`
-              fragment MyTodo on Comment {
-                id
-                user{
-                  id
-                  userName
-                  avatar
-                }
-                payload
-                createdAt
-                isMine
-                totalLikes
-                totalCommentOfComments
-                isLiked
-              }
-            `,
-            data,
-          })
-          // seeComments({"postId":36}) 음... 어떻게 넣어야 되나..
-          // post 에 댓글 ref 넣어. seeComments 에 넣어야 되는건가?
-          // const modifyResult = cache.modify({
-          //   id:`ROOT_QUERY`,
-          //   fields:{
-          //     seeComments({"postId":36})(prev){
-          //       return [...prev,result]
-          //     }
-          //   }
-          // })
+          // 캐시 말고 그냥 refetch 함. 그동안 다른 사람이 글 쓰면 이상해지니까
+          refetch();
+          // 만약 캐시 쓸거면 ROOT_QUERY 에 seeComments({"postId":route.params.postId}) 이걸로 변경
         }
-      }
+      },
     });
   }
-  return <Container>
-    <CommentFlatList 
-      data={data?.seeComments}
-      renderItem={renderItem}
-      // renderItem={({item})=><CommentLayout data={item}/>}
-      keyExtractor={(item:seeComments_seeComments) => item.id+""}
-      ListEmptyComponent={()=><View style={{justifyContent:"center",alignItems:"center"}}><Text style={{color:"white"}}>댓글이 없습니다.</Text></View>}
-    />
-    <CreateCommentContainer>
-      <CommentInput placeholder="댓글을 작성해 주세요." value={value} onChangeText={(text)=>setValue(text)}/>
-      <CreateCommentBtn onPress={onPressCreateComment}>
-        <CreateCommentBtnText>작성</CreateCommentBtnText>
-      </CreateCommentBtn>
-    </CreateCommentContainer>
-  </Container>;
+  return (
+    <KeyboardAvoidLayout
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={100}
+    >
+      <Container>
+        <CommentFlatList 
+          data={data?.seeComments}
+          renderItem={renderItem}
+          keyExtractor={(item:seeComments_seeComments) => item.id+""}
+          ListEmptyComponent={()=><View style={{justifyContent:"center",alignItems:"center"}}><Text style={{color:"white"}}>댓글이 없습니다.</Text></View>}
+        />
+        <CreateCommentContainer>
+          <CommentInput placeholder="댓글을 작성해 주세요." value={value} onChangeText={(text)=>setValue(text)}/>
+          <CreateCommentBtn onPress={onPressCreateComment}>
+            <CreateCommentBtnText>작성</CreateCommentBtnText>
+          </CreateCommentBtn>
+        </CreateCommentContainer>
+      </Container>
+    </KeyboardAvoidLayout>
+  );
 }
 export default Comments;

@@ -20,6 +20,7 @@ const Stack = createNativeStackNavigator();
 
 interface ISharedStackNavProps {
   screenName: string;
+  ifNotificationGetNumberOfUnread?: number;
 }
 
 const Img = styled.Image`
@@ -27,7 +28,7 @@ const Img = styled.Image`
   width: 100%;
 `;
 
-const SharedStackNav: React.FC<ISharedStackNavProps> = ({screenName}) => {
+const SharedStackNav: React.FC<ISharedStackNavProps> = ({screenName,ifNotificationGetNumberOfUnread}) => {
   const darkModeSubscription = useColorScheme();
   return (
     <Stack.Navigator
@@ -44,7 +45,11 @@ const SharedStackNav: React.FC<ISharedStackNavProps> = ({screenName}) => {
         headerTitle:()=><Img source={require("../../assets/logo.png")} resizeMode="contain"/>
       }}/>:null}
       {screenName === "Search"?<Stack.Screen name={"Search"} component={Search} />:null}
-      {screenName === "Notification"?<Stack.Screen name={"Notification"} component={Notification}/>:null}
+      {screenName === "Notification"?<Stack.Screen name={"Notification"} component={Notification} 
+      
+      initialParams={{ unreadNotification: ifNotificationGetNumberOfUnread }}
+      
+      />:null}
       {screenName === "Me"?<Stack.Screen name={"Me"} component={Me}/>:null}
       <Stack.Screen name="Profile" component={Profile}/>
       <Stack.Screen name="Photo" component={PhotoScreen}/>

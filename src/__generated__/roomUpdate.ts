@@ -7,12 +7,20 @@
 // GraphQL subscription operation: roomUpdate
 // ====================================================
 
+export interface roomUpdate_roomUpdate_user {
+  __typename: "User";
+  id: number;
+  userName: string;
+  avatar: string | null;
+}
+
 export interface roomUpdate_roomUpdate {
   __typename: "Message";
   id: number;
   payload: string;
-  userId: number;
+  user: roomUpdate_roomUpdate_user;
   read: boolean;
+  createdAt: string;
 }
 
 export interface roomUpdate {

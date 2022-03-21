@@ -1,9 +1,11 @@
 import { useNavigation } from "@react-navigation/native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React from "react";
 import styled from "styled-components/native";
 import { colors } from "../../color";
 import useMe from "../../hooks/useMe";
 import { seeRooms_seeRooms } from "../../__generated__/seeRooms";
+import { MessageNavProps } from "../type";
 
 const RoomContainer = styled.TouchableOpacity`
   padding: 10px;
@@ -40,22 +42,30 @@ const UnreadDot = styled.View`
   border-radius: 5px;
 `;
 
+type Props = NativeStackScreenProps<MessageNavProps, 'Room'>;
+
 const RoomItem = ({room}:{room:seeRooms_seeRooms}) => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<Props["navigation"]>();
   const {data:meData} = useMe();
-  const talkingTo = room.users?.find(user => user?.userName !== meData?.me?.userName)
-      console.log(talkingTo?.avatar)
-      return <RoomContainer onPress={()=>navigation.navigate("Room",{id:room.id,talkingTo})}>
-        <Column>
-          {talkingTo?.avatar && <Avatar source={{uri:talkingTo.avatar}}/>}
-          <Data>
-            <UserName>{talkingTo?.userName}</UserName>
-            <UnreadText>{room.unreadTotal} unread {room.unreadTotal === 1 ? "message" : "messages"}</UnreadText>
-          </Data>
-        </Column>
-        <Column>
-          {room.unreadTotal !== 0 && <UnreadDot />}
-        </Column>
-      </RoomContainer>;
+  const talkingTo = room.users?.find(user => user?.userName !== meData?.me?.userName);
+  const unreadTotal = room.unreadTotal;
+  return (
+    <RoomContainer onPress={()=>navigation.navigate("Room",{
+      id: room.id,
+      talkingTo,
+      unreadTotal,
+    })}>
+      <Column>
+        {talkingTo?.avatar && <Avatar source={{uri:talkingTo.avatar}}/>}
+        <Data>
+          <UserName>{talkingTo?.userName}</UserName>
+          <UnreadText>{room.unreadTotal} unread {room.unreadTotal === 1 ? "message" : "messages"}</UnreadText>
+        </Data>
+      </Column>
+      <Column>
+        {room.unreadTotal !== 0 && <UnreadDot />}
+      </Column>
+    </RoomContainer>
+  );
 };
 export default RoomItem;

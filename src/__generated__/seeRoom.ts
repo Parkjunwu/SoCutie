@@ -20,6 +20,7 @@ export interface seeRoom_seeRoom_messages {
   payload: string;
   user: seeRoom_seeRoom_messages_user;
   read: boolean;
+  createdAt: string;
 }
 
 export interface seeRoom_seeRoom {

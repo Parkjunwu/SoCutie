@@ -4,21 +4,30 @@
 // This file was automatically generated and should not be edited.
 
 // ====================================================
-// GraphQL fragment: MessageFragment
+// GraphQL query operation: getRoomMessages
 // ====================================================
 
-export interface MessageFragment_user {
+export interface getRoomMessages_getRoomMessages_user {
   __typename: "User";
   id: number;
   userName: string;
   avatar: string | null;
 }
 
-export interface MessageFragment {
+export interface getRoomMessages_getRoomMessages {
   __typename: "Message";
   id: number;
   payload: string;
-  user: MessageFragment_user;
+  user: getRoomMessages_getRoomMessages_user;
   read: boolean;
   createdAt: string;
+}
+
+export interface getRoomMessages {
+  getRoomMessages: (getRoomMessages_getRoomMessages | null)[] | null;
+}
+
+export interface getRoomMessagesVariables {
+  roomId: number;
+  cursorId?: number | null;
 }

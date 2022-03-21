@@ -1,12 +1,12 @@
 import { gql, useQuery } from "@apollo/client";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { FlatList, ListRenderItem, TouchableOpacity } from "react-native";
-import {Ionicons} from "@expo/vector-icons"
+import { FlatList, ListRenderItem } from "react-native";
 import { FeedStackProps } from "../../../components/type";
 import { seeFeed, seeFeedVariables, seeFeed_seeFeed } from "../../../__generated__/seeFeed";
 import Post from "../../../components/Post";
 import ScreenLayout from "../../../components/ScreenLayout";
+import WhenOpenFeedThenGetNumberOfUnreadMessageAndSetHeaderMessage from "../../../components/feed/WhenOpenFeedThenGetNumberOfUnreadMessage";
 
 type Props = NativeStackScreenProps<FeedStackProps, 'Feed'>;
 
@@ -40,30 +40,15 @@ const SEE_FEED_QUERY = gql`
     }
   }
 `;
-
 const Feed = ({navigation}:Props) => {
-  const MessageBtn = ({tintColor}:{tintColor?:string| undefined}) => <TouchableOpacity style={{marginRight:10,marginTop:1}} onPress={()=>navigation.navigate("Messages")}>
-        <Ionicons name="paper-plane" size={25} color={tintColor} />
-      </TouchableOpacity>
-  useEffect(()=>{
-    navigation.setOptions({
-      headerRight:MessageBtn
-    })
-  },[])
-  // const [offset,setOffset] = useState(0);
-  // const [renderData,setRenderData] = useState<(seeFeed_seeFeed | null)[]>([])
-  // const onCompleted = (data: seeFeed) => {
-  //   const newThing = data.seeFeed
-  //   if(newThing) setRenderData((prev) => [...prev,...newThing])
-  // }
+  // Feed 들어올 때 안읽은 메세지 갯수 받고 헤더 오른쪽에 메세지 버튼 생성함.
+  WhenOpenFeedThenGetNumberOfUnreadMessageAndSetHeaderMessage();
+
   const {data,loading,error,refetch,fetchMore} = useQuery<seeFeed,seeFeedVariables>(SEE_FEED_QUERY,{
     variables:{
       offset:0
     },
-    // onCompleted
   });
-  // console.log(error);
-  // console.log(data);
   const renderPost: ListRenderItem<seeFeed_seeFeed | null> | null = ({item:post}) => {
     if(post) return <Post {...post}/>;
     return null;
@@ -80,7 +65,6 @@ const Feed = ({navigation}:Props) => {
 
   // 처음 들어오면 refetch ?
   useEffect(()=>{
-    console.log("refetch")
     refetch();
   },[])
 
@@ -89,19 +73,21 @@ const Feed = ({navigation}:Props) => {
     await refetch();
     setRefreshing(false);
   };
-  return <ScreenLayout loading={loading}>
+  return (
     
-    {data?.seeFeed && <FlatList
-      data={data.seeFeed}
-      renderItem={renderPost}
-      keyExtractor={(item)=>item?.id + ""}
-      style={{width:"100%"}}
-      showsVerticalScrollIndicator={false}
-      onRefresh={onRefresh}
-      refreshing={refreshing}
-      onEndReached={onEndReached}
-      onEndReachedThreshold={0.5}
-    />}
-  </ScreenLayout>;
+    <ScreenLayout loading={loading}>
+      {data?.seeFeed && <FlatList
+        data={data.seeFeed}
+        renderItem={renderPost}
+        keyExtractor={(item)=>item?.id + ""}
+        style={{width:"100%"}}
+        showsVerticalScrollIndicator={false}
+        onRefresh={onRefresh}
+        refreshing={refreshing}
+        onEndReached={onEndReached}
+        onEndReachedThreshold={0.5}
+      />}
+    </ScreenLayout>
+  );
 }
 export default Feed;

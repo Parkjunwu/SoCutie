@@ -50,7 +50,7 @@ export default function Apps() {
       cache,
       storage: new AsyncStorageWrapper(AsyncStorage),
     });
-    await persistor.restore();
+    // await persistor.restore();
   };
   if (isAppNotReady) {
     return (

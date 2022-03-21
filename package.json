@@ -28,10 +28,12 @@
     "expo-asset": "^8.4.6",
     "expo-camera": "^12.1.2",
     "expo-font": "^10.0.5",
+    "expo-image-picker": "~12.0.1",
     "expo-media-library": "^14.0.1",
     "expo-splash-screen": "~0.14.1",
     "expo-status-bar": "~1.2.0",
     "graphql": "^16.3.0",
+    "graphql-ws": "^5.6.3",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-hook-form": "^7.27.1",
@@ -47,8 +49,7 @@
     "react-native-swiper-flatlist": "^3.0.16",
     "react-native-web": "0.17.1",
     "styled-components": "^5.3.3",
-    "subscriptions-transport-ws": "^0.11.0",
-    "expo-image-picker": "~12.0.1"
+    "subscriptions-transport-ws": "^0.11.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

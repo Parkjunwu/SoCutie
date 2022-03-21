@@ -54,7 +54,7 @@ const UserList = ({dataDotQuery,refetch,loading}:Props) => {
 
   return (
     <ScreenLayout loading={loading}>
-       <FlatList
+      <FlatList
         data={dataDotQuery}
         // 아래 애 처럼 들어와야 하니 애초에 받을 때 주의. <UserList dataDotQuery={data?.seePostLikes} ~~ 이런 식으로
         // data={data?.seePostLikes}

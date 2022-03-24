@@ -5,7 +5,7 @@ const getCreatedTimeAndDayByTimestamp = (timestamp:string) => {
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const day = date.getDate();
-  const createDay = `${year}년 ${month}월 ${day}일`
+  const createdDay = `${year}년 ${month}월 ${day}일`
 
   const transformHour = () => {
     const hour = date.getHours();
@@ -13,6 +13,8 @@ const getCreatedTimeAndDayByTimestamp = (timestamp:string) => {
       return "오전 12:"
     } else if (hour < 12) {
       return `오전 ${hour}:`
+    } else if (hour === 12){
+      return "오후 12:"
     } else {
       return `오후 ${hour-12}:`
     }
@@ -20,7 +22,7 @@ const getCreatedTimeAndDayByTimestamp = (timestamp:string) => {
   const minute = String(date.getMinutes()).padStart(2,"0");
   const transformedTime = transformHour()+minute;
   
-  return { createDay, transformedTime }
+  return { createdDay, transformedTime }
 };
 
 export default getCreatedTimeAndDayByTimestamp;

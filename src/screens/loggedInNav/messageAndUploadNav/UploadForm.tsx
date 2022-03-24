@@ -1,7 +1,7 @@
 import { NavigatorScreenParams } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, Image, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import {Ionicons} from "@expo/vector-icons"
 import styled from "styled-components/native";
 import { useForm } from "react-hook-form";
@@ -12,39 +12,8 @@ import { colors } from "../../../color";
 import { uploadPost, uploadPostVariables } from "../../../__generated__/uploadPost";
 import useMe from "../../../hooks/useMe";
 import DismissKeyboard from "../../../components/DismissKeyboard";
+import KeyboardAvoidLayout from "../../../components/KeyboardAvoidLayout";
 
-// const PHOTO_FRAGMENT = gql`
-//   fragment PhotoFragment on Photo {
-//     id
-//     file
-//     likes
-//     commentNumber
-//     isLiked
-//   }
-// `;
-// const FEED_PHOTO = gql`
-//    fragment FeedPhoto on Photo {
-//      ...PhotoFragment
-//      user {
-//        id
-//        userName
-//        avatar
-//      }
-//      caption
-//      createdAt
-//      isMine
-//    }
-//    ${PHOTO_FRAGMENT}
-//  `;
-
-// const UPLOAD_PHOTO_MUTATION = gql`
-//   mutation uploadPost($file: Upload!, $caption: String) {
-//     uploadPost(file: $file, caption: $caption){
-//       ...FeedPhoto
-//     }
-//   }
-//   ${FEED_PHOTO}
-// `;
 
 const UPLOAD_POST_MUTATION = gql`
   mutation uploadPost ($photoArr:[Upload]!, $caption:String) {
@@ -150,11 +119,9 @@ let fullImageIndex;
 const UploadForm = ({navigation,route}:Props) => {
   // TextInput 을 위한 useForm
   const {register,handleSubmit,setValue,getValues} = useForm<IForm>();
+
   useEffect(() => {
-    register("caption"
-      // 굳이 필수까진
-      // ,{required:true,}
-    );
+    register("caption");
   },[register]);
 
   // 캐시를 위해 현재 로그인한 유저 정보를 가져옴.
@@ -306,10 +273,14 @@ const UploadForm = ({navigation,route}:Props) => {
 
   // 화면
   return (
+    // 얜 왜 이래해도 되는거지
+    <KeyboardAvoidingView
+      behavior="position"
+      style={{flex:1}}
+      contentContainerStyle={{flex:1}}
+    >
     <DismissKeyboard>
       <Container>
-
-
         {/* 이미지 업로드 안해도 되면 얘랑 밑에 수정 */}
         <FullImageContainer>
           {/* 큰 이미지 위에 삭제 버튼 만듦. 1개 이상일때. */}
@@ -318,9 +289,6 @@ const UploadForm = ({navigation,route}:Props) => {
           </FullImageDeleteBtn>}
           <Photo source={{uri:bigImage}} resizeMode="contain" />
         </FullImageContainer>
-
-
-
 
         <ImageContainer>
           <DraggableFlatList
@@ -349,6 +317,7 @@ const UploadForm = ({navigation,route}:Props) => {
         </CaptionContainer>
       </Container>
     </DismissKeyboard>
+    </KeyboardAvoidingView>
   );
 }
 export default UploadForm;

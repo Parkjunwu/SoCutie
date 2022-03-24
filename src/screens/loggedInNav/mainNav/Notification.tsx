@@ -1,11 +1,14 @@
-import { gql, useApolloClient, useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { UpdateQueryFn } from "@apollo/client/core/watchQueryOptions";
+import { useIsFocused } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
 import { FlatList } from "react-native";
 import styled from "styled-components/native";
 import NotificationLayout from "../../../components/notification/NotificationLayout";
 import { FeedStackProps } from "../../../components/type";
+import getUnreadNumberOfNotificationOnCache from "../../../logic/getUnreadNumberOfNotificationOnCache";
+import subscribeToMoreExecuteOnlyOnceNeedWholeSubscribeToMoreFnAndQueryData from "../../../logic/subscribeToMoreExcuteOnlyOnce";
 import { readNotification } from "../../../__generated__/readNotification";
 import { seeUserNotificationList, seeUserNotificationListVariables } from "../../../__generated__/seeUserNotificationList";
 import { userNotificationUpdate } from "../../../__generated__/userNotificationUpdate";
@@ -45,6 +48,7 @@ const USER_NOTIFICATION_UPDATE = gql`
         avatar
       }
       which
+      read
       createdAt
     }
   }
@@ -70,127 +74,83 @@ const Notification = ({navigation,route}:Props) => {
 
   // 안읽은 notification 있을 시 읽음 처리
   const [readNotification] = useMutation<readNotification>(READ_NOTIFICATION);
+  
+  const isFocused = useIsFocused();
+
+  const unreadNotification = getUnreadNumberOfNotificationOnCache();
+  
   useEffect(()=>{
-    if(route.params.unreadNotification) {
+    if(unreadNotification) {
+      console.log("readNotification !!")
       readNotification({
         update: (cache,result) => {
           if(result.data.readNotification.ok) {
-            cache.modify({
-              id: "ROOT_QUERY",
-              fields: {
-                getNumberOfUnreadMessage:()=>0,
-              }
+            console.log("read")
+            cache.writeFragment({
+              id:"ROOT_QUERY",
+              fragment: gql`
+                fragment Numbers on Query {
+                  getNumberOfUnreadNotification
+                }
+              `,
+              data:{
+                getNumberOfUnreadNotification:null,
+              },
             });
           }
         }
       });
     };
-  },[])
+  },[isFocused]);
 
-  ///[Error: Cannot read properties of undefined (reading 'id')] 는 subscribed 어딘가 에서 나옴.
-  const client = useApolloClient()
+
   // subscription 을 캐시에 반영
-  const updateQuery:UpdateQueryFn<seeUserNotificationList,null, userNotificationUpdate> | undefined = async(_, options) => {
-    const {subscriptionData:{data:{userNotificationUpdate:message}}} = options;
-    if(message?.id){
-      // let user;
-      // if(!called) {
-      //   const userData = await subscribeProfile({
-      //     variables:{
-      //       id:message.userId
-      //     }
-      //   })
-      //   console.log("typename");
-      //   user = {"__typename": "User",...userData.data.subscribeProfile};
-      // } else {
-      //   const userData = await client.cache.readFragment({
-      //     id:`User:${message.userId}`,
-      //     fragment:gql`
-      //       fragment MessageUser on User {
-      //         id
-      //         userName
-      //         avatar
-      //       }
-      //     `,
-      //   })
-      //   console.log("alreadyName");
-      //   user = userData
-      // }
-      // const { userId,...rest } = message
-      // console.log(user)
-      // const newMessage = {...rest,user}
-      const incommingMessage = client.cache.writeFragment({
-        // id:`Comment:${id}`,
-        fragment:gql`
-          fragment NewMessage on Message {
-            id
-            publishUser{
-              id
-              userName
-              avatar
-            }
-            which
-            createdAt
-          }
-        `,
-        data: message,
-        // data: newMessage,
-      })
-      // seeUserNotificationList 에다가도 넣어야 되나?
-
-      // const modifyResult = client.cache.modify({
-      //   id:`Room:${route?.params?.id}`,
-      //   fields:{
-      //     messages(prev){
-      //       const existingArray = prev.find(aMessage=>aMessage.__ref === incommingMessage.__ref)
-      //       if(existingArray) return prev;
-      //       return [...prev,incommingMessage];
-      //     }
-      //   }
-      // });
-      // return modifyResult;
+  const updateQuery:UpdateQueryFn<seeUserNotificationList,null, userNotificationUpdate> | undefined = (prev, {subscriptionData}) => {
+    if(!subscriptionData.data){
+      return prev;
     }
+    return Object.assign({}, prev, {
+      seeUserNotificationList:[subscriptionData.data.userNotificationUpdate, ...prev.seeUserNotificationList]
+    });
   }
 
+  // 전체 subscribeToMore 함수
+  const wholeSubscribeToMoreFn = () => {
+    subscribeToMore({
+      document:USER_NOTIFICATION_UPDATE,
+      updateQuery,
+      onError:(err) => console.error(err),
+    });
+  };
+  
   // subscription 한번만 등록되게 하기 위함.
-  const [subscribed, setSubscribed] = useState(false)
-  // subscription 등록.
-  useEffect(()=>{
-    if(data?.seeUserNotificationList && !subscribed){
-      console.log("seeRoom is")
-      subscribeToMore({
-        document:USER_NOTIFICATION_UPDATE,
-        updateQuery,
-        onError:(err) => console.error(err),
-      });
-      setSubscribed(true);
-    }
-  },[data,subscribed]);
+  subscribeToMoreExecuteOnlyOnceNeedWholeSubscribeToMoreFnAndQueryData(wholeSubscribeToMoreFn,data?.seeUserNotificationList);
 
+  const [refreshing,setRefreshing] = useState(false);
+  const onRefresh = async() => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  };
 
-  // 더보기 누르면 fetchMore 함. 더 받을 데이터가 없으면 더보기 역시 사라짐.
-  // nomad-app feed 에 있군.
-  // const onPressfetchMore = () => {
-  //   fetchMore({
-  //     variables:{
-  //       cursorId: 데이터 마지막 id
-  //     }
-  //   });
-  // }
   const ListFooterComponent = () => {
     return (
       <ListFooterComponents >
         <ListFooterComponentText>더 보기</ListFooterComponentText>
       </ListFooterComponents>
     );
-  }
+  };
+
   return (
     <FlatList
       data={data.seeUserNotificationList}
       renderItem={({item})=>NotificationLayout(item)}
       keyExtractor={(item) => item.id + ""}
       ListFooterComponent={ListFooterComponent}
+      onRefresh={onRefresh}
+      refreshing={refreshing}
     />
   );
-}
+};
+
 export default Notification;

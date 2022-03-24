@@ -3,10 +3,15 @@ import { gql } from "@apollo/client";
 export const ROOM_FRAGMENT = gql`
   fragment RoomParts on Room {
     id
-    users {
+    talkingTo {
       id
       userName
       avatar
+    }
+    lastMessage {
+      id
+      payload
+      createdAt
     }
     unreadTotal
   }
@@ -22,5 +27,7 @@ export const MESSAGE_FRAGMENT = gql`
       avatar
     }
     read
+    createdAt
+    # roomId
   }
 `;

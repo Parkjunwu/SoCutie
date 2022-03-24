@@ -10,7 +10,7 @@
     "codegen": "apollo client:codegen src/__generated__ --target=typescript --outputFlat  --mergeInFieldsFromFragmentSpreads"
   },
   "dependencies": {
-    "@apollo/client": "^3.5.9",
+    "@apollo/client": "^3.5.10",
     "@react-native-async-storage/async-storage": "^1.16.1",
     "@react-native-community/slider": "^4.2.0",
     "@react-navigation/bottom-tabs": "^6.2.0",
@@ -48,8 +48,7 @@
     "react-native-swiper": "^1.6.0-rc.3",
     "react-native-swiper-flatlist": "^3.0.16",
     "react-native-web": "0.17.1",
-    "styled-components": "^5.3.3",
-    "subscriptions-transport-ws": "^0.11.0"
+    "styled-components": "^5.3.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

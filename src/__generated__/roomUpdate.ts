@@ -21,6 +21,7 @@ export interface roomUpdate_roomUpdate {
   user: roomUpdate_roomUpdate_user;
   read: boolean;
   createdAt: string;
+  roomId: number;
 }
 
 export interface roomUpdate {

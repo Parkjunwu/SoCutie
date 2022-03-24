@@ -21,6 +21,7 @@ export interface getRoomMessages_getRoomMessages {
   user: getRoomMessages_getRoomMessages_user;
   read: boolean;
   createdAt: string;
+  roomId: number;
 }
 
 export interface getRoomMessages {

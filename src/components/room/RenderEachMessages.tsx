@@ -1,6 +1,5 @@
 import { useColorScheme } from "react-native";
 import styled from "styled-components/native";
-import getCreatedTimeAndDayByTimestamp from "./logic/getCreatedTimeAndDayByTimestamp";
 
 const NewDayContainer = styled.View`
 `;
@@ -17,9 +16,9 @@ const MessageContainer = styled.View<{isMessageMine:boolean}>`
 const Author = styled.View`
 `;
 const Avatar = styled.Image`
-  width: 20px;
-  height: 20px;
-  border-radius: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
   `;
 const Message = styled.Text<{darkMode:string}>`
   /* 다크모드에 따라 색상 바뀜. */
@@ -38,38 +37,31 @@ const SendTime = styled.Text<{darkMode:string}>`
 `;
 
 
-// 처음 날짜 + 날짜가 바뀌는 때에만 날짜 보여줌
-// 날짜 확인을 위한 배열
-const dayArray: string[] = [];
-
 const RenderEachMessages = ({item:message,talkingTo}) => {
-  const darkModeSubscription = useColorScheme();
   if(!message){
     return null;
   }
-  const isMessageMine = message?.user?.userName === talkingTo.userName
+  const darkModeSubscription = useColorScheme();
 
-  const { createDay, transformedTime } = getCreatedTimeAndDayByTimestamp(message.createdAt);
+  const isMessageMine = message.user?.userName !== talkingTo?.userName
 
-  // 날짜가 이미 있는지 확인
-  let isNewDay = false;
-  if(!dayArray.includes(createDay)){
-    dayArray.push(createDay);
-    isNewDay = true;
-  }
+  const createdDay = message.createdDay;
+  const transformedTime = message.transformedTime;
+  const avatar = message.user.avatar;
+  const avatarUriIfNullThenSetNoUser = avatar ? { uri: avatar } : require("../../../assets/no_user.png");
 
   return (
     <>
-      {isNewDay && <NewDayContainer>
-        <NewDayText darkMode={darkModeSubscription}>{createDay}</NewDayText>  
-      </NewDayContainer>}
       <MessageContainer isMessageMine={isMessageMine}>
         <Author>
-          <Avatar source={{uri: isMessageMine ? message?.user?.avatar : talkingTo.avatar}}/>
+          <Avatar source={avatarUriIfNullThenSetNoUser}/>
         </Author>
         <Message darkMode={darkModeSubscription}>{message.payload}</Message>
         <SendTime darkMode={darkModeSubscription}>{transformedTime}</SendTime>
       </MessageContainer>
+      {createdDay && <NewDayContainer>
+        <NewDayText darkMode={darkModeSubscription}>{createdDay}</NewDayText>  
+      </NewDayContainer>}
     </>
   )
 };

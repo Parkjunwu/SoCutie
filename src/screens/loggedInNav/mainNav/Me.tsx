@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { Image, ListRenderItem, TouchableOpacity, useWindowDimensions } from "react-native";
 import styled from "styled-components/native";
 import { colors } from "../../../color";
+import LogOutBtn from "../../../components/me/LogOutBtn";
 import { MeStackProps } from "../../../components/type";
 import useMe from "../../../hooks/useMe";
 import {me_me_posts_post} from "../../../__generated__/me"
@@ -94,6 +95,13 @@ type Prop = NativeStackScreenProps<MeStackProps,"Me">
 // Profile.tsx 랑 합치는 게 나을듯
 
 const Me = ({navigation,route}:Prop) => {
+
+  useEffect(()=>{
+    navigation.setOptions({
+      headerRight:({tintColor})=><LogOutBtn tintColor={tintColor} />
+    })
+  },[]);
+
   const {data,fetchMore} = useMe();
   useEffect(()=>{
     if(data?.me?.userName){

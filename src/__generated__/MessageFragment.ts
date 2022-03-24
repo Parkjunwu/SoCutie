@@ -21,4 +21,5 @@ export interface MessageFragment {
   user: MessageFragment_user;
   read: boolean;
   createdAt: string;
+  roomId: number;
 }

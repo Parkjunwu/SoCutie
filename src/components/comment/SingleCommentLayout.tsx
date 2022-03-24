@@ -70,7 +70,6 @@ const SingleCommentLayout = ({comment}:{comment:seeComments_seeComments}) => {
       }
     });
   };
-  console.log(comment);
   const [commentLikeMutation] = useMutation<toggleCommentLike,toggleCommentLikeVariables>(TOGGLE_COMMENT_LIKE);
   const onPressLikes = async() => {
     const result = await commentLikeMutation({

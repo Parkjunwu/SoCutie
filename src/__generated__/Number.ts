@@ -4,12 +4,10 @@
 // This file was automatically generated and should not be edited.
 
 // ====================================================
-// GraphQL fragment: MessageUser
+// GraphQL fragment: Number
 // ====================================================
 
-export interface MessageUser {
-  __typename: "User";
-  id: number;
-  userName: string;
-  avatar: string | null;
+export interface Number {
+  __typename: "Query";
+  getNumberOfUnreadNotification: number;
 }

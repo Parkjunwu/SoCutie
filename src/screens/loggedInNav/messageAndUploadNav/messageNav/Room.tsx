@@ -1,8 +1,8 @@
 import { ApolloCache, DefaultContext, gql, MutationUpdaterFunction, useMutation, useQuery } from "@apollo/client";
 import { StackScreenProps } from "@react-navigation/stack";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { FlatList, KeyboardAvoidingView, useColorScheme, View } from "react-native";
+import { FlatList, useColorScheme, View } from "react-native";
 import {Ionicons} from "@expo/vector-icons"
 import styled from "styled-components/native";
 import ScreenLayout from "../../../../components/ScreenLayout";
@@ -15,22 +15,14 @@ import { roomUpdate } from "../../../../__generated__/roomUpdate";
 import { getRoomMessages, getRoomMessagesVariables } from "../../../../__generated__/getRoomMessages";
 import RenderEachMessages from "../../../../components/room/RenderEachMessages";
 import { readMessage, readMessageVariables } from "../../../../__generated__/readMessage";
+import subscribeToMoreExecuteOnlyOnceNeedWholeSubscribeToMoreFnAndQueryData from "../../../../logic/subscribeToMoreExcuteOnlyOnce";
+import messageCreatedAtChangeToCreateDayIFNewAndTransformTime from "../../../../components/room/messageCreatedAtChangeToCreateDayIFNewAndTransformTime";
+import { MESSAGE_FRAGMENT } from "../../../../fragment";
+import { transformedMessages } from "./transformedMessages";
+import MessageKeyboardAvoidLayout from "../../../../components/MessageKeyboardAvoidLayout";
+import { setHasNextPageNeedTakeOnceLength } from "../../../../utils";
 
 // 근데 어차피 둘이 얘기하는 거면 유저 정보를 받을 이유가 없네. isMine 만 받고 상대방 유저 이미지 uri 한번 받고 캐시에 저장? 이미지 캐시 저장은 안되나?
-
-const MESSAGE_FRAGMENT = gql`
-  fragment MessageFragment on Message {
-    id
-    payload
-    user{
-      id
-      userName
-      avatar
-    }
-    read
-    createdAt
-  }
-`;
 
 const ROOM_UPDATES = gql`
   subscription roomUpdate($id: Int!) {
@@ -93,6 +85,10 @@ type FormType = {
   message: string;
 };
 
+const {hasNextPage,isFetchDataLengthLessThanTakeOnceLength} = setHasNextPageNeedTakeOnceLength(20);
+
+let fetchCount = -1;
+
 const Room = ({route,navigation}:Props) => {
   const roomId = route.params.id
   const unreadTotal = route.params.unreadTotal;
@@ -112,10 +108,8 @@ const Room = ({route,navigation}:Props) => {
   const {data:meData} = useMe();
 
   const updateSendMessage:MutationUpdaterFunction<sendMessage, sendMessageVariables, DefaultContext, ApolloCache<any>> = (cache,result) => {
-    const ok = result.data?.sendMessage.ok
-    const id = result.data?.sendMessage.id
-    // console.log(ok)
-    // console.log(meData)
+    const ok = result.data?.sendMessage.ok;
+    const id = result.data?.sendMessage.id;
     if(ok && meData) {
       const messageObj = {
         id,
@@ -141,8 +135,9 @@ const Room = ({route,navigation}:Props) => {
           }
         `,
         data:messageObj
-      })
-      const modifyResult = cache.modify({
+      });
+
+      cache.modify({
         id:`Room:${route?.params?.id}`,
         fields:{
           messages(prev){
@@ -168,11 +163,27 @@ const Room = ({route,navigation}:Props) => {
     setValue("message","")
   };
 
-  const {data,loading,refetch,subscribeToMore} = useQuery<getRoomMessages,getRoomMessagesVariables>(GET_ROOM_MESSAGES,{
+  const {data,loading,refetch,subscribeToMore,fetchMore} = useQuery<getRoomMessages,getRoomMessagesVariables>(GET_ROOM_MESSAGES,{
     variables:{
       roomId
-    }
+    },
+    skip:!hasNextPage,
+    ////////
+    onCompleted:(data)=>{
+      fetchCount++
+      console.log(hasNextPage);
+      if(fetchCount === 0) return;
+      console.log("fetchCount");
+      console.log(fetchCount);
+      const dataLength = data.getRoomMessages.length/fetchCount
+      console.log(dataLength)
+      console.log("dataLength")
+      isFetchDataLengthLessThanTakeOnceLength(dataLength);
+    },
+    ////////
+
   });
+
   useEffect(()=>{
     refetch();
   },[]);
@@ -197,21 +208,19 @@ const Room = ({route,navigation}:Props) => {
     });
   };
 
+  const wholeSubscribeToMoreFn = () => {
+    subscribeToMore({
+      document:ROOM_UPDATES,
+      variables:{
+        id:roomId
+      },
+      updateQuery,
+      onError:(err) => console.error("error is "+err),
+    });
+  };
   
-  const [subscribed, setSubscribed] = useState(false)
-  useEffect(()=>{
-    if(data?.getRoomMessages && !subscribed){
-      subscribeToMore({
-        document:ROOM_UPDATES,
-        variables:{
-          id:roomId
-        },
-        updateQuery,
-        onError:(err) => console.error("error is "+err),
-      });
-      setSubscribed(true);
-    }
-  },[data,subscribed])
+  // subscription 한번만 실행되게 하기 위함
+  subscribeToMoreExecuteOnlyOnceNeedWholeSubscribeToMoreFnAndQueryData(wholeSubscribeToMoreFn,data?.getRoomMessages);
 
   useEffect(()=>{
     navigation.setOptions({
@@ -219,9 +228,13 @@ const Room = ({route,navigation}:Props) => {
       headerBackTitleVisible:false,
     })
   },[]);
-
-  const messages = [...(data?.getRoomMessages ?? [])].reverse()
   
+  const messages = [...(data?.getRoomMessages ?? [])];
+  // 밑에는 못 쓸듯. KeyboardAvoidingView 가 화면을 통째로 옮겨서 FlatList 밑에부터 그려져야함.
+  // const messages = [...(data?.getRoomMessages ?? [])].reverse();
+  
+  const transformedMessages:transformedMessages = messageCreatedAtChangeToCreateDayIFNewAndTransformTime(messages);
+
   // 메세지 입력하면 색 찐해지게
   const sendBtnColor = () => {
     if(watch("message") === "") {
@@ -242,18 +255,41 @@ const Room = ({route,navigation}:Props) => {
   // flatList 맨 아래로 가기 위함
   const flatList = React.useRef(null);
 
+
+  ////////////
+  const onEndReached = async() => {
+    console.log("getRoomMessages fetchMore");
+    const prevData = data?.getRoomMessages;
+    if(!prevData) return;
+    await fetchMore({
+      variables:{
+        cursorId:prevData[prevData.length-1].id
+      },
+      // updateQuery:(prev,{fetchMoreResult}) => {
+      //   return {
+      //     getRoomMessages:[...prev.getRoomMessages,...fetchMoreResult.getRoomMessages]
+      //   }
+      // }
+    });
+  };
+  //////////////
+
   return (
-    <KeyboardAvoidingView style={{flex:1}} behavior="padding" keyboardVerticalOffset={100}>
+    <MessageKeyboardAvoidLayout>
       <ScreenLayout loading={loading}>
         <FlatList
-          data={messages}
+          // data={messages}
+          data={transformedMessages}
           renderItem={({item})=><RenderEachMessages item={item} talkingTo={route.params.talkingTo}/>}
           keyExtractor={message=>"" + message?.id}
           style={{width:"100%", marginVertical:10}}
           ItemSeparatorComponent={()=><View style={{height:20}} />}
           showsVerticalScrollIndicator={false}
           ref={flatList}
-          onContentSizeChange={()=> flatList.current.scrollToEnd({animated:false})}
+          inverted
+          onEndReached={onEndReached}
+          onEndReachedThreshold={0.5}
+          // onContentSizeChange={()=> flatList.current.scrollToEnd({animated:false})}
         />
         <InputContainer>
         <UserInput
@@ -270,7 +306,7 @@ const Room = ({route,navigation}:Props) => {
         </SendButton>
         </InputContainer>
       </ScreenLayout>
-    </KeyboardAvoidingView>
+    </MessageKeyboardAvoidLayout>
   );
 };
 export default Room;

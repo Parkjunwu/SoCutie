@@ -4,8 +4,8 @@ import { setContext } from '@apollo/client/link/context';
 import { getMainDefinition, offsetLimitPagination } from "@apollo/client/utilities";
 import {onError} from "@apollo/client/link/error"
 import { createUploadLink } from "apollo-upload-client";
-import { WebSocketLink } from '@apollo/client/link/ws';
-import { SubscriptionClient } from "subscriptions-transport-ws";
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { createClient } from 'graphql-ws';
 
 // 토큰 상수
 const TOKEN = "token"
@@ -42,16 +42,13 @@ const uploadHttpLink = createUploadLink({
   uri:"http://localhost:4000/graphql",
 })
 
-// subscription 을 위한 web socket Link
-const wsLink = new WebSocketLink({
-  uri: 'ws://localhost:4000/graphql',
-  options: {
-    reconnect: true,
-    connectionParams: () => ({
-      token: tokenVar(),
-    }),
-  }
-});
+// 신버전 subscription Link
+const wsLink = new GraphQLWsLink(createClient({
+  url: 'ws://localhost:4000/graphql',
+  connectionParams: () => ({
+    token: tokenVar(),
+  }),
+}));
 
 // 인증, 로그인을 위한 Link
 const authLink = setContext((_,{headers})=>{
@@ -73,12 +70,27 @@ const onErrorLink = onError(({graphQLErrors,networkError})=>{
   }
 });
 
+// const cursorPagination = () => {
+  const cursorPagination = {
+  // return {
+    merge(existing, incoming) {
+      return existing ? [...existing,...incoming] : [...incoming]
+      ;
+    },
+    read(existing) {
+      if (existing) {
+        return [...existing]
+      }
+    },
+  // }
+}
 // 캐시
 export const cache = new InMemoryCache({
   typePolicies: {
     Query: {
       fields: {
-        seeFeed: offsetLimitPagination()
+        seeFeed: offsetLimitPagination(),
+        getRoomMessages: cursorPagination,
       }
     }
   }

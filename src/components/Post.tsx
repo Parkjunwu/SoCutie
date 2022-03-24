@@ -1,7 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { useEffect, useState } from "react";
-import { Image, TouchableOpacity, useColorScheme, useWindowDimensions } from "react-native";
+import React from "react";
+import { TouchableOpacity, useColorScheme } from "react-native";
 import styled from "styled-components/native";
 import { seeFeed_seeFeed_user } from "../__generated__/seeFeed";
 import { FeedStackProps } from "./type";
@@ -29,14 +29,6 @@ const UserAvatar = styled.Image`
 const Username = styled.Text`
   color: ${props=>props.theme.textColor};
   font-weight: 600;
-`;
-type ImageProp = {
-  width:number;
-  height:number;
-}
-const File = styled.Image<ImageProp>`
-  width: ${props => props.width}px;
-  height: ${props => props.height}px;
 `;
 const Actions = styled.View`
   flex-direction: row;
@@ -81,11 +73,6 @@ interface IPhotoProps {
 
 // React.FC<seeFeed_seeFeed | undefined>
 const Post: React.FC<IPhotoProps> = ({id,user,caption,file,isLiked,likes}) => {
-  const {width:getWidth} = useWindowDimensions();
-  const [height,setHeight] = useState(getWidth)
-  useEffect(()=>{
-    Image.getSize(file[0],(width,height)=>setHeight(getWidth*height/width),(error)=>console.error(error))
-  },[file])
   const navigation = useNavigation<NativeStackNavigationProp<FeedStackProps, "Photo">>()
 
   const updatetogglePostLike: MutationUpdaterFunction<togglePostLike,togglePostLikeVariables, DefaultContext, ApolloCache<any>>= (cache,result) => {
@@ -104,7 +91,6 @@ const Post: React.FC<IPhotoProps> = ({id,user,caption,file,isLiked,likes}) => {
         }
       })
     }
-    
   }
 
   const [togglePostLikeMutation] = useMutation<togglePostLike,togglePostLikeVariables>(TOGGLE_POST_LIKE_MUTATION,{
@@ -119,33 +105,33 @@ const Post: React.FC<IPhotoProps> = ({id,user,caption,file,isLiked,likes}) => {
   const goToProfile = () => navigation.navigate("Profile",{id:user.id,userName:user.userName})
 
   const darkModeSubscription = useColorScheme();
-  return <Container>
-    <Header onPress={goToProfile}>
-      {user.avatar && <UserAvatar source={{uri:user.avatar}} resizeMode="cover"/>}
-      <Username>{user.userName}</Username>
-    </Header>
+  return (
+    <Container>
+      <Header onPress={goToProfile}>
+        {user.avatar && <UserAvatar source={{uri:user.avatar}} resizeMode="cover"/>}
+        <Username>{user.userName}</Username>
+      </Header>
+      
+      <PhotoSwiper fileUriArr={file}/>
 
-    
-    <PhotoSwiper fileUriArr={file}/>
-
-
-    <ExtraContainer>
-      <Actions>
-        <Action onPress={updatetogglePostLikes}>
-          <Ionicons name={isLiked?"heart":"heart-outline"} color={isLiked?"tomato":darkModeSubscription === "light" ? "black" : "white"} size={22}/>
-        </Action>
-        <Action onPress={() => navigation.navigate("Comments",{postId:id})}>
-          <Ionicons name="chatbubble-outline" color={darkModeSubscription === "light" ? "black" : "white"} size={20}/>
-        </Action>
-      </Actions>
-      <TouchableOpacity onPress={() => navigation.navigate("PostLikes",{postId:id})}>
-        <Likes>{likes === 1 ? "1 like" : `${likes} likes`}</Likes>
-      </TouchableOpacity>
-      <Caption>
-        <TouchableOpacity onPress={goToProfile}><Username>{user.userName}{file && "a"}</Username></TouchableOpacity>
-        <CaptionText>{caption}</CaptionText>
-      </Caption>
-    </ExtraContainer>
-  </Container>; 
+      <ExtraContainer>
+        <Actions>
+          <Action onPress={updatetogglePostLikes}>
+            <Ionicons name={isLiked?"heart":"heart-outline"} color={isLiked?"tomato":darkModeSubscription === "light" ? "black" : "white"} size={22}/>
+          </Action>
+          <Action onPress={() => navigation.navigate("Comments",{postId:id})}>
+            <Ionicons name="chatbubble-outline" color={darkModeSubscription === "light" ? "black" : "white"} size={20}/>
+          </Action>
+        </Actions>
+        <TouchableOpacity onPress={() => navigation.navigate("PostLikes",{postId:id})}>
+          <Likes>{likes === 1 ? "1 like" : `${likes} likes`}</Likes>
+        </TouchableOpacity>
+        <Caption>
+          <TouchableOpacity onPress={goToProfile}><Username>{user.userName}{file && "a"}</Username></TouchableOpacity>
+          <CaptionText>{caption}</CaptionText>
+        </Caption>
+      </ExtraContainer>
+    </Container>
+  ); 
 }
 export default Post;

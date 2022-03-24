@@ -49,18 +49,21 @@ const Feed = ({navigation}:Props) => {
       offset:0
     },
   });
+
   const renderPost: ListRenderItem<seeFeed_seeFeed | null> | null = ({item:post}) => {
     if(post) return <Post {...post}/>;
     return null;
   }
+
   const onEndReached = async() => {
-    // setOffset(prev=>prev+2);
+    console.log("seeFeed fetchMore")
     await fetchMore({
       variables:{
         offset:data?.seeFeed?.length
       }
     })
-  }
+  };
+  
   const [refreshing,setRefreshing] = useState(false);
 
   // 처음 들어오면 refetch ?

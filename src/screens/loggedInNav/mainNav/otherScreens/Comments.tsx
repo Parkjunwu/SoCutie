@@ -1,9 +1,10 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { ListRenderItem, Platform, Text, View } from "react-native";
+import { ListRenderItem, Text, View } from "react-native";
 import styled from "styled-components/native";
 import SingleCommentLayout from "../../../../components/comment/SingleCommentLayout";
+import KeyboardAvoidLayout from "../../../../components/KeyboardAvoidLayout";
 import { FeedStackProps } from "../../../../components/type";
 import { createComment, createCommentVariables } from "../../../../__generated__/createComment";
 import { seeComments, seeCommentsVariables, seeComments_seeComments } from "../../../../__generated__/seeComments";
@@ -36,9 +37,9 @@ const CREATE_COMMENT = gql`
   }
 `;
 
-const KeyboardAvoidLayout = styled.KeyboardAvoidingView`
-  flex: 1;
-`;
+// const KeyboardAvoidLayout = styled.KeyboardAvoidingView`
+//   flex: 1;
+// `;
 const Container = styled.View`
   background-color: ${props => props.theme.backgroundColor};
   flex:1;
@@ -106,11 +107,9 @@ const Comments = ({navigation,route}:Props) => {
       },
     });
   }
+  // KeyboardAvoidLayout 가 FlatList 안에 있는 commentOfComment 만 적용되고 FlatList 바깥은 적용이 안됨. 어떻게 해야되나
   return (
-    <KeyboardAvoidLayout
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={100}
-    >
+    <KeyboardAvoidLayout>
       <Container>
         <CommentFlatList 
           data={data?.seeComments}

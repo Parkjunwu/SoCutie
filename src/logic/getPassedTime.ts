@@ -1,4 +1,6 @@
-const getPassedTime = (time) => {
+const getPassedTime = (timestamp) => {
+  // subscription 은 시간이 이상하게 들어옴. 그거 변환.
+  const time = timestamp.substring(timestamp.length-1, timestamp.length) === "Z" ? new Date(timestamp).getTime() : timestamp;
   // 현재 시간
   const now = new Date().getTime();
   // 계산할 시간

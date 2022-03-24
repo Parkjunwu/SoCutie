@@ -21,6 +21,7 @@ export interface userNotificationUpdate_userNotificationUpdate {
   id: number;
   publishUser: userNotificationUpdate_userNotificationUpdate_publishUser;
   which: WhichNotification;
+  read: boolean;
   createdAt: string;
 }
 

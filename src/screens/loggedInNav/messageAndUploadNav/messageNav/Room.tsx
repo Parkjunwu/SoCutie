@@ -1,8 +1,7 @@
 import { ApolloCache, DefaultContext, gql, MutationUpdaterFunction, useMutation, useQuery } from "@apollo/client";
-import { StackScreenProps } from "@react-navigation/stack";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { FlatList, useColorScheme, View } from "react-native";
+import { FlatList, Text, useColorScheme, View } from "react-native";
 import {Ionicons} from "@expo/vector-icons"
 import styled from "styled-components/native";
 import ScreenLayout from "../../../../components/ScreenLayout";
@@ -21,6 +20,7 @@ import { MESSAGE_FRAGMENT } from "../../../../fragment";
 import { transformedMessages } from "./transformedMessages";
 import MessageKeyboardAvoidLayout from "../../../../components/MessageKeyboardAvoidLayout";
 import { setHasNextPageNeedTakeOnceLength } from "../../../../utils";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 // 근데 어차피 둘이 얘기하는 거면 유저 정보를 받을 이유가 없네. isMine 만 받고 상대방 유저 이미지 uri 한번 받고 캐시에 저장? 이미지 캐시 저장은 안되나?
 
@@ -45,7 +45,12 @@ const SEND_MESSAGE_MUTATION = gql`
 const GET_ROOM_MESSAGES = gql`
   query getRoomMessages($roomId:Int!,$cursorId:Int) {
     getRoomMessages(roomId:$roomId,cursorId:$cursorId) {
-      ...MessageFragment
+      cursorId
+      hasNextPage
+      messages {
+        ...MessageFragment
+      }
+      error
     }
   }
   ${MESSAGE_FRAGMENT}
@@ -79,15 +84,12 @@ const SendButton = styled.TouchableOpacity`
   
 `;
 
-type Props = StackScreenProps<MessageNavProps>
+type Props = NativeStackScreenProps<MessageNavProps, "Room">
 
 type FormType = {
   message: string;
 };
 
-const {hasNextPage,isFetchDataLengthLessThanTakeOnceLength} = setHasNextPageNeedTakeOnceLength(20);
-
-let fetchCount = -1;
 
 const Room = ({route,navigation}:Props) => {
   const roomId = route.params.id
@@ -108,9 +110,12 @@ const Room = ({route,navigation}:Props) => {
   const {data:meData} = useMe();
 
   const updateSendMessage:MutationUpdaterFunction<sendMessage, sendMessageVariables, DefaultContext, ApolloCache<any>> = (cache,result) => {
+    console.log("send message")
     const ok = result.data?.sendMessage.ok;
     const id = result.data?.sendMessage.id;
+    console.log(1)
     if(ok && meData) {
+      console.log(2)
       const messageObj = {
         id,
         payload:getValues().message,
@@ -137,14 +142,31 @@ const Room = ({route,navigation}:Props) => {
         data:messageObj
       });
 
-      cache.modify({
-        id:`Room:${route?.params?.id}`,
+      console.log("messageFragment")
+      console.log(messageFragment)
+
+      // const field = `getRoomMessages({"roomId":${roomId}})`
+      const field = "getRoomMessages"
+
+      const result = cache.modify({
+        id:'ROOT_QUERY',
         fields:{
-          messages(prev){
-            return [...prev,messageFragment]
+          [field]:(prev)=>{
+            const { messages:prevMessages, ...prevRest } = prev;
+            const messages = prevMessages ? [ messageFragment, ...prevMessages ] : [ messageFragment ];
+            console.log(messages);
+            return {
+              messages,
+              ...prevRest,
+            };
           }
         }
       });
+
+      console.log("result");
+      console.log(result);
+
+      //////// 데이터가 더블로 됨. 왠진 모르겠음...
     }
   };
   
@@ -163,25 +185,14 @@ const Room = ({route,navigation}:Props) => {
     setValue("message","")
   };
 
+
   const {data,loading,refetch,subscribeToMore,fetchMore} = useQuery<getRoomMessages,getRoomMessagesVariables>(GET_ROOM_MESSAGES,{
     variables:{
-      roomId
+      roomId:route.params.id
     },
-    skip:!hasNextPage,
-    ////////
-    onCompleted:(data)=>{
-      fetchCount++
-      console.log(hasNextPage);
-      if(fetchCount === 0) return;
-      console.log("fetchCount");
-      console.log(fetchCount);
-      const dataLength = data.getRoomMessages.length/fetchCount
-      console.log(dataLength)
-      console.log("dataLength")
-      isFetchDataLengthLessThanTakeOnceLength(dataLength);
-    },
-    ////////
-
+    onCompleted(){
+      console.log("onCompleted");
+    }
   });
 
   useEffect(()=>{
@@ -194,7 +205,7 @@ const Room = ({route,navigation}:Props) => {
   const updateQuery:UpdateQueryFn<getRoomMessages, {
     id: number | undefined;
   }, roomUpdate> | undefined = (prev, {subscriptionData}) => {
-    console.log("get subscription")
+    console.log("get subscription on Room")
     if (!subscriptionData.data) return prev;
     // 바로 읽음 처리, await 는 안해도 알아서 되겠지
     readMessage({
@@ -203,12 +214,28 @@ const Room = ({route,navigation}:Props) => {
       },
     });
     const {data:{roomUpdate:message}} = subscriptionData;
+
+
+    const { messages:prevMessages, ...prevRest } = prev;
+    const messages = prevMessages ? [ message, ...prevMessages ] : [ message ];
+
+    // const field = `getRoomMessages({roomId:${roomId}})`
+    const field = "getRoomMessages"
+
     return Object.assign({}, prev, {
-      getRoomMessages: [message, ...prev.getRoomMessages]
+      [field]: {
+        messages,
+        ...prevRest,
+      }
     });
   };
 
+
+
+
+
   const wholeSubscribeToMoreFn = () => {
+    console.log("subscribe Room")
     subscribeToMore({
       document:ROOM_UPDATES,
       variables:{
@@ -222,6 +249,10 @@ const Room = ({route,navigation}:Props) => {
   // subscription 한번만 실행되게 하기 위함
   subscribeToMoreExecuteOnlyOnceNeedWholeSubscribeToMoreFnAndQueryData(wholeSubscribeToMoreFn,data?.getRoomMessages);
 
+
+
+
+
   useEffect(()=>{
     navigation.setOptions({
       title:`Conversation with ${route?.params?.talkingTo?.userName}`,
@@ -229,10 +260,12 @@ const Room = ({route,navigation}:Props) => {
     })
   },[]);
   
-  const messages = [...(data?.getRoomMessages ?? [])];
+
+  const messages = [...(data?.getRoomMessages.messages ?? [])];
   // 밑에는 못 쓸듯. KeyboardAvoidingView 가 화면을 통째로 옮겨서 FlatList 밑에부터 그려져야함.
   // const messages = [...(data?.getRoomMessages ?? [])].reverse();
-  
+
+
   const transformedMessages:transformedMessages = messageCreatedAtChangeToCreateDayIFNewAndTransformTime(messages);
 
   // 메세지 입력하면 색 찐해지게
@@ -255,22 +288,41 @@ const Room = ({route,navigation}:Props) => {
   // flatList 맨 아래로 가기 위함
   const flatList = React.useRef(null);
 
-
+  // console.log("data")
+  // console.log(data?.getRoomMessages.messages.map(a=>a.id));
   ////////////
   const onEndReached = async() => {
     console.log("getRoomMessages fetchMore");
-    const prevData = data?.getRoomMessages;
-    if(!prevData) return;
+    const hasNextPage = data?.getRoomMessages.hasNextPage;
+    const cursorId = data?.getRoomMessages.cursorId
+    
+    console.log("cursorId")
+    console.log(cursorId)
+
+    if(!hasNextPage) return;
+    console.log("fetchMore")
     await fetchMore({
       variables:{
-        cursorId:prevData[prevData.length-1].id
+        cursorId,
+        roomId:route.params.id
+        
+
+
+
+        // cursorId:prevData[prevData.length-1].id
+
+
+
+
       },
-      // updateQuery:(prev,{fetchMoreResult}) => {
-      //   return {
-      //     getRoomMessages:[...prev.getRoomMessages,...fetchMoreResult.getRoomMessages]
-      //   }
-      // }
+    //   updateQuery:(previousQueryResult,{fetchMoreResult})=>{
+    //     console.log("previousQueryResult");
+    //     console.log(previousQueryResult?.messages?.map(a=>a.id));
+    //     console.log("fetchMoreResult");
+    //     console.log(fetchMoreResult.messages.map(a=>a.id));
+    //   }
     });
+    console.log("fetchMore done");
   };
   //////////////
 

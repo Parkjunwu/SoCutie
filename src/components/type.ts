@@ -1,4 +1,4 @@
-import { seeRooms_seeRooms_users } from "../__generated__/seeRooms";
+import { seeRooms_seeRooms_talkingTo } from "../__generated__/seeRooms";
 
 type baseProps = {
   Profile: { id: number, userName: string };
@@ -32,5 +32,5 @@ export type SearchStackProps = baseProps & {
 
 export type MessageNavProps = {
   Rooms: undefined;
-  Room: { id: number, talkingTo: seeRooms_seeRooms_users, unreadTotal:number };
+  Room: { id: number, talkingTo: seeRooms_seeRooms_talkingTo, unreadTotal:number };
 }

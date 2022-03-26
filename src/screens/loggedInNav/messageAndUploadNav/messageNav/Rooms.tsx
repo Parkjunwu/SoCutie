@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { FlatList, View, ListRenderItem, TouchableOpacity, useColorScheme } from "react-native";
+import { FlatList, View, ListRenderItem, TouchableOpacity, useColorScheme, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { gql, useQuery } from "@apollo/client";
@@ -12,6 +12,8 @@ import { useIsFocused } from "@react-navigation/native";
 import subscribeToMoreExecuteOnlyOnceNeedWholeSubscribeToMoreFnAndQueryData from "../../../../logic/subscribeToMoreExcuteOnlyOnce";
 import { UpdateQueryFn } from "@apollo/client/core/watchQueryOptions";
 import { roomUpdate } from "../../../../__generated__/roomUpdate";
+import useMe from "../../../../hooks/useMe";
+import cacheImage from "../../../../cacheImage";
 
 const SEE_ROOMS = gql`
   query seeRooms {
@@ -42,6 +44,14 @@ const Rooms = ({navigation}:Props) => {
   const darkModeSubscription = useColorScheme();
   // Room 목록 받음
   const {data,loading,refetch,subscribeToMore} = useQuery<seeRooms>(SEE_ROOMS);
+
+  // 캐시에 저장.. 인데 필요 없는듯
+  // useEffect(()=>{
+  //   if(data?.seeRooms){
+  //     data?.seeRooms.forEach(room => cacheImage(room.talkingTo?.avatar));
+  //   }
+  // },[data])
+
 
   // 메세지 최근에 받은 순서로 정렬
   const compare = (a:seeRooms_seeRooms, b:seeRooms_seeRooms) => {
@@ -78,7 +88,7 @@ const Rooms = ({navigation}:Props) => {
 
   // 메세지 subscription + 캐시 업데이트
   const updateQuery:UpdateQueryFn<seeRooms, null, roomUpdate> = (prev, {subscriptionData}) => {
-    console.log("get subscription")
+    console.log("get subscription Rooms s")
     if (!subscriptionData.data) return prev;
 
     const roomUpdate = subscriptionData.data.roomUpdate;
@@ -123,7 +133,7 @@ const Rooms = ({navigation}:Props) => {
           payload: roomUpdate.payload,
         };
         newRoom.unreadTotal = newRoom.unreadTotal + 1;
-        console.log(newRoom)
+        // console.log(newRoom)
         return newRoom;
       }
       return room;
@@ -136,7 +146,7 @@ const Rooms = ({navigation}:Props) => {
 
   // subscribeToMore 전체 함수. 캐시 변경 까지
   const wholeSubscribeToMoreFn = () => {
-    console.log("subscribe!!!!")
+    console.log("subscribe Rooms")
     subscribeToMore({
       document:ROOM_UPDATE,
       updateQuery,

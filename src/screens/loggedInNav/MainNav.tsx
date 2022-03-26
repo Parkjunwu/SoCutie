@@ -4,6 +4,7 @@ import { BottomTabScreenProps, createBottomTabNavigator } from "@react-navigatio
 import React, { useEffect } from "react";
 import { useColorScheme, View } from "react-native";
 import styled, { css } from "styled-components/native";
+import cacheImage from "../../cacheImage";
 import TabIcon from "../../components/nav/TabIcon";
 import useMe from "../../hooks/useMe";
 import getUnreadNumberOfNotificationOnCache from "../../logic/getUnreadNumberOfNotificationOnCache";
@@ -54,6 +55,12 @@ let numberOfUnreadIfZeroIsNull: number|null;
 
 const MainNav = () => {
   const {data:meData} = useMe();
+  // 유저 이미지를 캐시 저장. 근데 지금 너무 느림.
+  useEffect(()=>{
+    if(meData?.me){
+      cacheImage(meData.me.avatar);
+    }
+  },[meData]);
   const darkModeSubscription = useColorScheme();
 
   // 처음 실행 시 안읽은 캐시 갯수 받음

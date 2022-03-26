@@ -49,6 +49,7 @@ const RenderEachMessages = ({item:message,talkingTo}) => {
   const transformedTime = message.transformedTime;
   const avatar = message.user.avatar;
   const avatarUriIfNullThenSetNoUser = avatar ? { uri: avatar } : require("../../../assets/no_user.png");
+  // { uri: avatar, cache:'force-cache' }
 
   return (
     <>

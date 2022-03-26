@@ -1,5 +1,5 @@
 import AppLoading from "expo-app-loading";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import * as Font from "expo-font";
 import { Asset } from "expo-asset";
@@ -14,6 +14,7 @@ import LoggedOutNav from "./screens/LoggedOutNav";
 import { ThemeProvider } from "styled-components/native";
 import { darkMode, lightMode } from "./styles";
 import { useColorScheme } from "react-native";
+import ErrorCatchApps from "./ErrorCatchApps";
 
 export default function Apps() {
   const isLoggedIn = useReactiveVar(isLoggedInVar);
@@ -51,6 +52,13 @@ export default function Apps() {
       storage: new AsyncStorageWrapper(AsyncStorage),
     });
     // await persistor.restore();
+    // await persistor.purge(); 
+    // await persistor.remove();
+    // cache.gc();
+    // cache.evict({ id: 'ROOT_QUERY' })
+    // 얘가 다 삭제인듯
+    // client.resetStore()
+
   };
   if (isAppNotReady) {
     return (
@@ -60,18 +68,19 @@ export default function Apps() {
         onFinish={onFinish}
       />
     );
-  }
-  console.log(darkModeSubscription)
-
-
+  };
+  
   return (
-    <ThemeProvider theme={darkModeSubscription === "light" ?lightMode : darkMode}>
-      <ApolloProvider client={client}>
-        <NavigationContainer>
-          {/* 로그인 안하면 못써 */}
-          {isLoggedIn?<LoggedInNav/>:<LoggedOutNav/>}
-        </NavigationContainer>
-      </ApolloProvider>
-    </ThemeProvider>
-  )
-}
+    // ErrorCatchApps 를 재귀함수로 만들었는데 뭐 이상하면 이거 확인. 오류났을 때 로그아웃 시키는 애.
+    <ErrorCatchApps>
+      <ThemeProvider theme={darkModeSubscription === "light" ? lightMode : darkMode}>
+        <ApolloProvider client={client}>
+          <NavigationContainer>
+            {/* 로그인 안하면 못써 */}
+            {isLoggedIn?<LoggedInNav/>:<LoggedOutNav/>}
+          </NavigationContainer>
+        </ApolloProvider>
+      </ThemeProvider>
+    </ErrorCatchApps>
+  );
+};

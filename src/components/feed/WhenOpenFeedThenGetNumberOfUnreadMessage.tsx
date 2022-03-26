@@ -72,8 +72,8 @@ const WhenOpenFeedThenGetNumberOfUnreadMessageAndSetHeaderMessage = () => {
     return (
       <TouchableOpacity style={{marginRight:10,marginTop:1}} onPress={()=>
       navigation.navigate("Messages") }>
-        {(numberOfUnreadMessage?.getNumberOfUnreadMessage || numberOfUnreadMessage.getNumberOfUnreadMessage !== 0) &&<UnreadMessageContainer>
-          <UnreadMessageText>{numberOfUnreadMessage.getNumberOfUnreadMessage}</UnreadMessageText>
+        {(numberOfUnreadMessage?.getNumberOfUnreadMessage || numberOfUnreadMessage?.getNumberOfUnreadMessage !== 0) &&<UnreadMessageContainer>
+          <UnreadMessageText>{numberOfUnreadMessage?.getNumberOfUnreadMessage}</UnreadMessageText>
         </UnreadMessageContainer>}
         <Ionicons name="paper-plane" size={25} color={tintColor} />
       </TouchableOpacity>

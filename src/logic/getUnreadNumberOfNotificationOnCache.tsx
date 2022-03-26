@@ -12,7 +12,7 @@ const getUnreadNumberOfNotificationOnCache = () => {
     `
   });
   
-  return getUnreadNumberOnCache.getNumberOfUnreadNotification
+  return getUnreadNumberOnCache?.getNumberOfUnreadNotification
 }
 
 export default getUnreadNumberOfNotificationOnCache;

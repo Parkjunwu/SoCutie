@@ -28,6 +28,8 @@ export const logUserOut = async() => {
   await AsyncStorage.removeItem(TOKEN);
   isLoggedInVar(false);
   tokenVar(null);
+  // 캐시 삭제
+  client.resetStore();
 };
 // logUserOut();
 
@@ -40,11 +42,13 @@ export const logUserOut = async() => {
 // upload 쓸 때 Link
 const uploadHttpLink = createUploadLink({
   uri:"http://localhost:4000/graphql",
+  // uri:"http://022d-58-140-221-249.ngrok.io/graphql"
 })
 
 // 신버전 subscription Link
 const wsLink = new GraphQLWsLink(createClient({
   url: 'ws://localhost:4000/graphql',
+  // url:"ws://022d-58-140-221-249.ngrok.io/graphql",
   connectionParams: () => ({
     token: tokenVar(),
   }),
@@ -73,7 +77,7 @@ const onErrorLink = onError(({graphQLErrors,networkError})=>{
 // const cursorPagination = () => {
   const cursorPagination = {
   // return {
-    merge(existing, incoming) {
+    merge(existing, incoming, { readField }) {
       return existing ? [...existing,...incoming] : [...incoming]
       ;
     },
@@ -90,7 +94,25 @@ export const cache = new InMemoryCache({
     Query: {
       fields: {
         seeFeed: offsetLimitPagination(),
-        getRoomMessages: cursorPagination,
+        getRoomMessages: {
+          // keyArgs 를 지정하면 각 방마다 캐시 저장할 수 있음. 안하면 마지막에 들어갔던 방만 유지.
+          keyArgs: ["roomId"],
+          merge(existing, incoming) {
+            // 무조건 type 형식이 맞아야함.... ㅅㅂ 안되서 개삽질했네. ...incomingRest 이걸로 맞춰라 바꿀꺼 빼고
+            const { messages:incomingMessages, ...incomingRest } = incoming;
+            const messages = existing?.messages ? [ ...existing.messages, ...incomingMessages ] : [ ...incomingMessages ];
+            return {
+              messages,
+              ...incomingRest,
+            };
+          },
+
+          // read(existing) {
+          //   if (existing) {
+          //     return { ...existing };
+          //   }
+          // },
+        }
       }
     }
   }

@@ -1,0 +1,59 @@
+{
+  "cli": {
+    "version": ">= 0.50.0"
+  },
+  "build": {
+
+    "base": {
+      "ios": {
+        "cocoapods": "1.11.3"
+      }
+    },
+
+    "simulator": {
+      "releaseChannel": "preview",
+      "ios": {
+        "simulator": true
+      },
+      "extends": "base"
+    },
+
+    "iosdevice": {
+      "distribution": "internal",
+      "releaseChannel": "preview",
+      "ios": {
+        "image": "latest"
+      },
+      "extends": "base"
+    },
+
+    "preview": {
+      "releaseChannel": "preview",
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "preview2": {
+      "android": {
+        "gradleCommand": ":app:assembleRelease"
+      }
+    },
+    "preview3": {
+      "developmentClient": true
+    },
+
+    "production": {
+      "releaseChannel": "production5",
+      "ios":{
+        "image": "latest"
+      },
+      "extends": "base"
+    }
+    
+  },
+  "submit": {
+    "production": {
+      
+    }
+  }
+}

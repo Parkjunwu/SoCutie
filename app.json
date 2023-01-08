@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "so_cute",
+    "slug": "so_cute",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "jsEngine": "hermes",
+    "userInterfaceStyle": "automatic"
+  },
+  "name": "so_cute",
+  "displayName": "So Cutie"
+}

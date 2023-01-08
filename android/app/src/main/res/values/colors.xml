@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resources>
+  <color name="splashscreen_background">#FCF4DC</color>
+  <color name="ic_launcher_background">#fc2c82</color>
+  <color name="white">#FFF</color>
+</resources>
